@@ -31,3 +31,24 @@
 ### 05/05/2026 19:34
 - Added a root `.gitignore` for Node/Vite project artifacts, including dependency directories, build output, coverage, local environment files, common editor metadata, and Vim swap/backup files.
 - Current product state: routine generated and local-only files are now excluded from version control noise for the browser game scaffold.
+
+### 05/05/2026 19:45
+- Read all current HLD files under `docs/` and compared them against the implementation.
+- Confirmed with the user to implement the missing first playable slice, with the player currently scoped to left/right movement and jumping.
+- Current product state: implementation work is starting on the menu, alpha level, gameplay states, placeholder common infected, and minimal player entity.
+
+### 05/05/2026 19:48
+- Replaced the scaffold-only flow with a typed scene structure centered on a pre-level menu and an alpha level scene.
+- Added typed constants for the documented gameplay states, alpha level dimensions, player movement tuning, and common infected stats.
+- Implemented a minimal arcade-physics player entity with left/right movement and jumping, plus a placeholder common infected entity aligned to the current HLD.
+- Current product state: the game now has a clickable menu, a 1000px flat-floor test level, camera follow, pause/death state handling, and placeholder entities without requiring external art assets.
+
+### 05/05/2026 19:48
+- Ran `npm test`; the constants test suite passed with 7 assertions after the gameplay-slice changes.
+- Ran `npm run build`; the production build completed successfully after fixing scene state typing and the legacy boot-scene import.
+- Completed HLD-aligned requirements: implemented the pre-level entry point, alpha test level baseline, placeholder common infected, and a minimal movable/jumpable player entity.
+- Current product state: the repository now contains the first playable browser slice of Slug4Dead, with successful test/build verification and only a non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 19:49
+- Deleted the obsolete `src/game/scenes/BootScene.ts` file with user approval after confirming it had no remaining references.
+- Current product state: the codebase no longer carries the unused hello-world boot-scene scaffold.

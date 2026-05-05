@@ -27,3 +27,7 @@
 - Build tooling reported a chunk-size warning because the initial Phaser bundle is about 1.48 MB minified; this is not blocking for the current hello-world scaffold.
 - Completed HLD-aligned requirement: established the initial browser-based code scaffold using the technology decisions documented in `docs/hld/main.md`.
 - Current product state: the repository now has a working Vite + TypeScript + Phaser hello-world baseline that compiles and tests successfully.
+
+### 05/05/2026 19:34
+- Added a root `.gitignore` for Node/Vite project artifacts, including dependency directories, build output, coverage, local environment files, common editor metadata, and Vim swap/backup files.
+- Current product state: routine generated and local-only files are now excluded from version control noise for the browser game scaffold.

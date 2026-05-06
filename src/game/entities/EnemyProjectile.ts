@@ -1,31 +1,34 @@
 import Phaser from "phaser";
 
-import { PISTOL_CARD } from "../constants";
+import { SPITTER_INFECTED_STATS } from "../constants";
 import type { VelocityVector } from "../trajectory";
 
-const BULLET_TEXTURE_KEY = "__bullet";
+const ENEMY_PROJECTILE_TEXTURE_KEY = "__enemy_projectile";
 
-export class Bullet extends Phaser.Physics.Arcade.Sprite {
+export class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
   public constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     velocity: VelocityVector
   ) {
-    Bullet.ensureTexture(scene);
-    super(scene, x, y, BULLET_TEXTURE_KEY);
+    EnemyProjectile.ensureTexture(scene);
+    super(scene, x, y, ENEMY_PROJECTILE_TEXTURE_KEY);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setDisplaySize(10, 4);
-    this.setTint(0xfff5cf);
-    this.setRotation(velocity.angle);
+    this.setDisplaySize(14, 14);
+    this.setTint(0x7ad66d);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setAllowGravity(false);
-    body.setSize(10, 4);
+    body.setCircle(7);
     body.setVelocity(velocity.x, velocity.y);
+  }
+
+  public getDamage(): number {
+    return SPITTER_INFECTED_STATS.damage;
   }
 
   public isOutOfBounds(worldWidth: number, worldHeight: number): boolean {
@@ -37,19 +40,15 @@ export class Bullet extends Phaser.Physics.Arcade.Sprite {
     );
   }
 
-  public getDamage(): number {
-    return PISTOL_CARD.damage;
-  }
-
   private static ensureTexture(scene: Phaser.Scene): void {
-    if (scene.textures.exists(BULLET_TEXTURE_KEY)) {
+    if (scene.textures.exists(ENEMY_PROJECTILE_TEXTURE_KEY)) {
       return;
     }
 
     const graphics = scene.make.graphics({ x: 0, y: 0 }, false);
     graphics.fillStyle(0xffffff);
-    graphics.fillRect(0, 0, 10, 4);
-    graphics.generateTexture(BULLET_TEXTURE_KEY, 10, 4);
+    graphics.fillCircle(7, 7, 7);
+    graphics.generateTexture(ENEMY_PROJECTILE_TEXTURE_KEY, 14, 14);
     graphics.destroy();
   }
 }

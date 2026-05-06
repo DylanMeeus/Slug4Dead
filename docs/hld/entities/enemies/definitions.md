@@ -3,6 +3,12 @@
 ```
 {
     [{
+        field: "name",
+        description: "The name of the enemy. This is a way to uniquely identify an enemy type, e.g
+        for use when creating levels",
+        "type": "string",
+    },
+    {
         field: "health",
         description: "health points (hit points) - total lives that this enemy has",
         "type": "int",

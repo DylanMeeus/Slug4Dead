@@ -2,8 +2,11 @@ import Phaser from "phaser";
 
 import { Bullet } from "../entities/Bullet";
 import { CommonInfected } from "../entities/CommonInfected";
+import type { DamageableEnemy } from "../entities/Enemy";
+import { EnemyProjectile } from "../entities/EnemyProjectile";
 import { Pistol } from "../entities/Pistol";
 import { Player } from "../entities/Player";
+import { SpitterInfected } from "../entities/SpitterInfected";
 import { resolveVelocityVector } from "../trajectory";
 import {
   ALPHA_LEVEL,
@@ -20,7 +23,9 @@ import {
   PLAYER_MOVEMENT,
   PLAYER_SIZE,
   SAFE_ZONE_WIDTH,
-  SCENE_KEYS
+  SCENE_KEYS,
+  SPITTER_INFECTED_PROJECTILE,
+  SPITTER_INFECTED_STATS
 } from "../constants";
 
 export class AlphaLevelScene extends Phaser.Scene {
@@ -32,8 +37,9 @@ export class AlphaLevelScene extends Phaser.Scene {
   private floor?: Phaser.GameObjects.Rectangle;
   private safeZone?: Phaser.GameObjects.Rectangle;
   private crosshair?: Phaser.GameObjects.Graphics;
-  private readonly infectedGroup: CommonInfected[] = [];
+  private readonly enemies: DamageableEnemy[] = [];
   private readonly bullets: Bullet[] = [];
+  private readonly enemyProjectiles: EnemyProjectile[] = [];
   private pistol = new Pistol();
   private lastDamageTimeMs = -PLAYER_MOVEMENT.damageCooldownMs;
   private levelComplete = false;
@@ -45,8 +51,9 @@ export class AlphaLevelScene extends Phaser.Scene {
   public create(): void {
     this.gameplayState = GAMEPLAY_STATES.alive;
     this.pistol = new Pistol();
-    this.infectedGroup.length = 0;
+    this.enemies.length = 0;
     this.bullets.length = 0;
+    this.enemyProjectiles.length = 0;
     this.lastDamageTimeMs = -PLAYER_MOVEMENT.damageCooldownMs;
     this.levelComplete = false;
 
@@ -92,21 +99,15 @@ export class AlphaLevelScene extends Phaser.Scene {
     });
 
     for (const enemyDefinition of ALPHA_LEVEL.enemies) {
-      if (enemyDefinition.type !== "common") {
-        continue;
-      }
-
-      const infected = new CommonInfected(
-        this,
-        enemyDefinition.spawnLocation,
-        LEVEL_HEIGHT - FLOOR_HEIGHT - 20
+      const enemy = this.createEnemy(
+        enemyDefinition.type,
+        enemyDefinition.spawnLocation
       );
-      infected.setTint(0x9fe870);
-      this.infectedGroup.push(infected);
 
-      this.physics.add.collider(infected, this.floor);
-      this.physics.add.overlap(this.player, infected, () => {
-        this.handlePlayerContact(infected);
+      this.enemies.push(enemy);
+      this.physics.add.collider(enemy, this.floor);
+      this.physics.add.overlap(this.player, enemy, () => {
+        this.handlePlayerContact(enemy);
       });
     }
 
@@ -172,10 +173,15 @@ export class AlphaLevelScene extends Phaser.Scene {
     }
 
     this.player.update();
-    for (const infected of this.infectedGroup) {
-      infected.update();
+    for (const enemy of this.enemies) {
+      enemy.update();
+
+      if (enemy instanceof SpitterInfected) {
+        this.tryFireSpitterProjectile(enemy);
+      }
     }
     this.cullBullets();
+    this.cullEnemyProjectiles();
   }
 
   private setGameplayState(nextState: GameplayState): void {
@@ -207,13 +213,14 @@ export class AlphaLevelScene extends Phaser.Scene {
       `Pistol: ${this.pistol.getAmmo()}/${PISTOL_CARD.magSize} / fire rate ${PISTOL_CARD.fireRatePerSecond}/s`,
       reloadLabel,
       `Common infected: ${COMMON_INFECTED_STATS.health}hp / ${COMMON_INFECTED_STATS.damage} damage / velocity ${COMMON_INFECTED_MOVEMENT.speedPixelsPerSecond}px/s`,
-      `Alpha enemies: ${this.infectedGroup.length}`,
+      `Spitter: ${SPITTER_INFECTED_STATS.health}hp / ${SPITTER_INFECTED_STATS.damage} damage / projectile ${SPITTER_INFECTED_PROJECTILE.velocity}px/s`,
+      `Alpha enemies: ${this.enemies.length}`,
       "Controls: A / D / Space / Mouse 1 / Esc",
       "Esc: pause, resume, or return to menu when dead"
     ].join("\n");
   }
 
-  private handlePlayerContact(infected: CommonInfected): void {
+  private handlePlayerContact(enemy: DamageableEnemy): void {
     if (!this.player || this.gameplayState !== GAMEPLAY_STATES.alive) {
       return;
     }
@@ -224,7 +231,7 @@ export class AlphaLevelScene extends Phaser.Scene {
     }
 
     this.lastDamageTimeMs = nowMs;
-    const remainingHealth = this.player.applyDamage(infected.damage);
+    const remainingHealth = this.player.applyDamage(enemy.damage);
     this.player.setTint(remainingHealth > 0 ? 0xff8f8f : 0xc94f4f);
     this.time.delayedCall(120, () => {
       if (this.player && this.gameplayState === GAMEPLAY_STATES.alive) {
@@ -266,26 +273,26 @@ export class AlphaLevelScene extends Phaser.Scene {
     );
     this.bullets.push(bullet);
 
-    for (const infected of this.infectedGroup) {
-      this.physics.add.overlap(bullet, infected, () => {
-        this.handleBulletHit(bullet, infected);
+    for (const enemy of this.enemies) {
+      this.physics.add.overlap(bullet, enemy, () => {
+        this.handleBulletHit(bullet, enemy);
       });
     }
   }
 
-  private handleBulletHit(bullet: Bullet, infected: CommonInfected): void {
-    if (!bullet.active || !infected.active) {
+  private handleBulletHit(bullet: Bullet, enemy: DamageableEnemy): void {
+    if (!bullet.active || !enemy.active) {
       return;
     }
 
     bullet.destroy();
     this.removeBulletReference(bullet);
 
-    if (infected.applyDamage(bullet.getDamage()) <= 0) {
-      infected.destroy();
-      const index = this.infectedGroup.indexOf(infected);
+    if (enemy.applyDamage(bullet.getDamage()) <= 0) {
+      enemy.destroy();
+      const index = this.enemies.indexOf(enemy);
       if (index >= 0) {
-        this.infectedGroup.splice(index, 1);
+        this.enemies.splice(index, 1);
       }
     }
   }
@@ -296,6 +303,19 @@ export class AlphaLevelScene extends Phaser.Scene {
       if (!bullet.active || bullet.isOutOfBounds(LEVEL_WIDTH, LEVEL_HEIGHT)) {
         bullet.destroy();
         this.bullets.splice(index, 1);
+      }
+    }
+  }
+
+  private cullEnemyProjectiles(): void {
+    for (let index = this.enemyProjectiles.length - 1; index >= 0; index -= 1) {
+      const projectile = this.enemyProjectiles[index];
+      if (
+        !projectile.active ||
+        projectile.isOutOfBounds(LEVEL_WIDTH, LEVEL_HEIGHT)
+      ) {
+        projectile.destroy();
+        this.enemyProjectiles.splice(index, 1);
       }
     }
   }
@@ -346,6 +366,64 @@ export class AlphaLevelScene extends Phaser.Scene {
     const index = this.bullets.indexOf(bullet);
     if (index >= 0) {
       this.bullets.splice(index, 1);
+    }
+  }
+
+  private createEnemy(
+    enemyType: (typeof ALPHA_LEVEL.enemies)[number]["type"],
+    spawnLocation: number
+  ): DamageableEnemy {
+    const spawnY = LEVEL_HEIGHT - FLOOR_HEIGHT - 20;
+
+    if (enemyType === "spitter") {
+      return new SpitterInfected(this, spawnLocation, spawnY);
+    }
+
+    const enemy = new CommonInfected(this, spawnLocation, spawnY);
+    enemy.setTint(0x9fe870);
+    return enemy;
+  }
+
+  private tryFireSpitterProjectile(spitter: SpitterInfected): void {
+    if (!this.player) {
+      return;
+    }
+
+    const velocity = spitter.tryFireAt(
+      this.time.now,
+      this.player.x,
+      this.player.y
+    );
+
+    if (!velocity) {
+      return;
+    }
+
+    const projectile = new EnemyProjectile(this, spitter.x, spitter.y, velocity);
+    this.enemyProjectiles.push(projectile);
+    this.physics.add.overlap(projectile, this.player, () => {
+      this.handleEnemyProjectileHit(projectile);
+    });
+  }
+
+  private handleEnemyProjectileHit(projectile: EnemyProjectile): void {
+    if (
+      !this.player ||
+      !projectile.active ||
+      this.gameplayState !== GAMEPLAY_STATES.alive
+    ) {
+      return;
+    }
+
+    projectile.destroy();
+    const index = this.enemyProjectiles.indexOf(projectile);
+    if (index >= 0) {
+      this.enemyProjectiles.splice(index, 1);
+    }
+
+    const remainingHealth = this.player.applyDamage(projectile.getDamage());
+    if (remainingHealth <= 0) {
+      this.setGameplayState(GAMEPLAY_STATES.dead);
     }
   }
 }

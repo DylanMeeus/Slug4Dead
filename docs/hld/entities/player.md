@@ -5,6 +5,6 @@
 
 ```
 {
-    health: 100hp,
+    health: 100,
     velocity: 200,
 }

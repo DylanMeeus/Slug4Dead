@@ -7,7 +7,7 @@
     mag_size: 15,
     reload_time: 2000,
     fire_rate: 10,
-    velocity: 300,
+    velocity: 500,
     damage: 2,
 }
 ```

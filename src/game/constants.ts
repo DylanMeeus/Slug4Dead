@@ -12,7 +12,7 @@ export const PLAYER_SIZE = {
 
 export const PLAYER_CARD = {
   health: 100,
-  velocity: 500
+  velocity: 200
 } as const;
 
 export const PLAYER_MOVEMENT = {
@@ -21,8 +21,9 @@ export const PLAYER_MOVEMENT = {
 } as const;
 
 export const COMMON_INFECTED_STATS = {
+  name: "common",
   health: 10,
-  damage: 1,
+  damage: 25,
   velocity: 100
 } as const;
 
@@ -32,12 +33,25 @@ export const COMMON_INFECTED_MOVEMENT = {
   maxPatrolDistance: 300
 } as const;
 
+export const SPITTER_INFECTED_STATS = {
+  name: "spitter",
+  health: 20,
+  damage: 50,
+  velocity: 150
+} as const;
+
+export const SPITTER_INFECTED_PROJECTILE = {
+  velocity: 300,
+  minFireDelayMs: 1000,
+  maxFireDelayMs: 3000
+} as const;
+
 export const PISTOL_CARD = {
   magSize: 15,
   reloadTimeMs: 2000,
   fireRatePerSecond: 10,
-  bulletDamage: 10,
-  velocity: 200
+  damage: 2,
+  velocity: 500
 } as const;
 
 export const CROSSHAIR = {
@@ -52,11 +66,15 @@ export const ALPHA_LEVEL = {
   enemies: [
     {
       type: "common",
-      spawnLocation: 200
+      spawnLocation: 500
     },
     {
       type: "common",
-      spawnLocation: 400
+      spawnLocation: 1000
+    },
+    {
+      type: "spitter",
+      spawnLocation: 1500
     }
   ]
 } as const;

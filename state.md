@@ -122,3 +122,68 @@
 - Read the updated `docs/hld/levels/alpha.md` level format and confirmed the implementation still uses the older hardcoded width and spawn locations.
 - Confirmed with the user to adopt the new alpha level definition in code.
 - Current product state: implementation work is starting on level-driven alpha width and spawn wiring.
+
+### 05/05/2026 22:18
+- Re-read the updated shooting and pistol HLD files and confirmed the remaining implementation mismatches are isolated to pistol `velocity` and `damage` values plus the `bulletDamage` field name.
+- Confirmed with the user to align the code directly to the updated shooting HLD values.
+- Current product state: implementation work is starting on pistol shooting value alignment.
+
+### 05/05/2026 22:18
+- Updated the runtime pistol card to match the HLD directly: `velocity 300` and `damage 2`.
+- Renamed the bullet damage lookup to use `PISTOL_CARD.damage` so the shooting system now references the same field name described in the docs.
+- Current product state: the pistol shooting values in code now match the updated HLD shape and numbers.
+
+### 05/05/2026 22:20
+- Ran `npm test`; all three test files passed for a total of 13 assertions after the pistol HLD alignment.
+- Ran `npm run build`; the production build completed successfully after updating the pistol field names and values.
+- Completed user-requested shooting discrepancy fix: pistol `velocity` and `damage` now match the HLD and the shooting code reads damage from the documented card field.
+- Current product state: the shooting system and pistol card are aligned to the current HLD, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:23
+- Corrected the stale player velocity constant to match the updated HLD card value of `200`.
+- Updated the constants test expectation so the direct card-value contract remains enforced in test coverage.
+- Current product state: player speed and pistol speed are now ordered consistently with the current HLD values (`200` vs `300`).
+
+### 05/05/2026 22:24
+- Ran `npm test`; all three test files passed for a total of 13 assertions after correcting the stale player velocity.
+- Ran `npm run build`; the production build completed successfully with the updated player speed value.
+- Completed user-requested discrepancy fix: player runtime velocity now matches the updated HLD card value of `200`.
+- Current product state: the player and pistol speed relationship is now aligned to the HLD (`200` vs `300`), with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:29
+- Read the updated pistol HLD and confirmed pistol `velocity` is now `500`.
+- Updated the runtime pistol card and constants test to match the HLD value directly.
+- Current product state: pistol bullet speed now uses the updated HLD value of `500` with no conversion layer.
+
+### 05/05/2026 22:30
+- Ran `npm test`; all three test files passed for a total of 13 assertions after the pistol velocity update.
+- Ran `npm run build`; the production build completed successfully with pistol velocity `500`.
+- Completed user-requested update: code and tests now match the updated pistol HLD velocity value.
+- Current product state: pistol bullets travel at `500` while player velocity remains `200`, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:39
+- Re-read `docs/hld/entities/enemies/*.md` and `docs/hld/levels/alpha.md` after the user requested parity.
+- Identified required changes: common infected damage/name alignment, alpha spawn updates, new spitter enemy stats, stationary spitter behavior, random-frequency spitter projectile attacks, and enemy projectile handling.
+- Current product state: implementation work is starting on enemy and alpha level parity.
+
+### 05/05/2026 22:41
+- Read the current project layout, package scripts, core HLD context, alpha scene implementation, constants, menu scene, spitter entity, enemy projectile entity, and existing tests to prepare a project README.
+- Added a root `README.md` covering the game summary, current playable slice, controls, tech stack, setup commands, project layout, development notes, and known implementation notes.
+- Current product state: the repository now has onboarding documentation for running and understanding the current Slug4Dead alpha slice.
+
+### 05/05/2026 22:42
+- Ran `npm test`; all three test files passed for a total of 14 assertions.
+- Ran `npm run build`; the production build completed successfully.
+- Current product state: the README documentation change is verified, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:41
+- Added a shared damageable enemy type, a spitter infected entity, and enemy projectile entity.
+- Updated common infected constants to include the documented `name` field and `damage 25`, added spitter stats/projectile constants, and updated alpha level enemy definitions to common at `500`, common at `1000`, and spitter at `1500`.
+- Generalized the alpha scene so common and spitter enemies can both receive bullet damage and be removed when health reaches zero; spitter enemies now stand still and fire projectiles toward the player at randomized intervals.
+- Current product state: enemy and alpha level parity implementation is ready for test/build verification.
+
+### 05/05/2026 22:42
+- Ran `npm test`; all three test files passed for a total of 14 assertions after the enemy and alpha level parity changes.
+- Ran `npm run build`; the production build completed successfully with the new spitter enemy and enemy projectile path.
+- Completed HLD-aligned requirements: common infected card parity, spitter infected implementation, spitter projectile behavior, and updated alpha level enemy spawns.
+- Current product state: enemy entities and alpha level spawning match the current HLD, with only the existing non-blocking Phaser bundle-size warning remaining.

@@ -6,6 +6,18 @@ also the most common (as the name suggests) enemy in the game.
 
 ## Enemy Card
 
-Health: 10hp
-Damage: 1hp
+```
+{
+    health: 10,
+    damage: 1,
+    velocity: 100,
+}
+```
 
+## Movement Details
+
+This enemy just walks left / right. They continue walking the exact distance in either direction.
+Their max range is decidedly randomly when the enemy is spawned into the game. For example, they can
+move from their starting point 200 pixels left, then move back 200 pixels right to their starting
+position. Both the initial direction and distance is randomly generated. The max distane that any
+enemy of this types will walk is 300 pixels. 

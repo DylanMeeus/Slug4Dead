@@ -52,3 +52,73 @@
 ### 05/05/2026 19:49
 - Deleted the obsolete `src/game/scenes/BootScene.ts` file with user approval after confirming it had no remaining references.
 - Current product state: the codebase no longer carries the unused hello-world boot-scene scaffold.
+
+### 05/05/2026 21:42
+- Re-read the expanded HLD docs under `docs/`, including aim, entity definitions, and pistol docs, then prioritized the next missing systems with the user.
+- Confirmed the next implementation pass will cover player health/damage, mouse aim and crosshair, pistol fire/reload, and common infected patrol behavior.
+- Current product state: implementation work is starting on the first combat slice beyond movement.
+
+### 05/05/2026 21:45
+- Added documented player and weapon card values to typed constants, including `100hp` player health and the pistol card values from the HLD.
+- Implemented player health/damage handling, a pistol reload/fire state machine, mouse crosshair rendering, projectile firing, and common infected patrol behavior with randomized direction and patrol distance.
+- Added focused tests for the pistol behavior in addition to the existing constants coverage.
+- Current product state: the alpha level now supports movement, aiming, shooting, reloading, contact damage, enemy death, and enemy patrol without external art assets.
+
+### 05/05/2026 21:46
+- Ran `npm test`; both the constants suite and the pistol behavior tests passed for a total of 11 assertions.
+- Ran `npm run build`; the production build completed successfully after widening internal health types and fixing the Arcade bullet gravity API usage.
+- Completed HLD-aligned requirements: implemented aim/crosshair, pistol fire/reload behavior, player health/damage handling, and common infected patrol behavior.
+- Current product state: the first combat-capable alpha slice is working and verified, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 21:53
+- Re-read the current shooting and infected movement implementation after the user reported that bullets were not traveling correctly.
+- Identified the projectile setup as the main weak point and confirmed the next patch will focus on bullet motion, projectile lifecycle, and infected velocity alignment.
+- Current product state: a targeted fix pass is starting for combat feel and correctness.
+
+### 05/05/2026 21:54
+- Simplified bullet motion to use an explicit normalized velocity vector and direct Arcade body `setVelocity` instead of relying on implicit rotation-based mutation.
+- Removed the `immovable` bullet-group behavior, moved bullet spawning slightly forward from the player body, and added a focused trajectory test.
+- Aligned common infected runtime speed to be derived from the documented velocity card rather than a disconnected hardcoded patrol speed.
+- Current product state: shooting and infected velocity behavior have been patched and are ready for verification.
+
+### 05/05/2026 21:55
+- Reworked the trajectory helper to use plain TypeScript math so the shooting logic can be tested outside a browser runtime.
+- Ran `npm test`; all three test files passed for a total of 13 assertions, including the new trajectory coverage.
+- Ran `npm run build`; the production build completed successfully after the shooting-path fixes.
+- Completed user-requested fix pass: bullets now use explicit velocity-based travel and infected runtime speed is derived from the documented velocity card.
+- Current product state: shooting and infected movement are verified, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:00
+- Re-read the projectile implementation after the user confirmed the rendered bullet was still appearing static at spawn.
+- Identified the next fix as replacing the ad hoc bullet image flow with a dedicated projectile entity and simpler collision/lifecycle ownership.
+- Current product state: a second targeted projectile fix pass is starting.
+
+### 05/05/2026 22:02
+- Read `docs/hld/systems/keybindings.md` and aligned input handling to the documented bindings: `A`/`D` for movement, `Space` for jump, `Mouse 1` for shooting, and `Esc` for pause.
+- Removed the extra manual `R` reload binding so the playable input set matches the HLD more closely.
+- Current product state: the projectile fix pass now also includes HLD-aligned control updates.
+
+### 05/05/2026 22:03
+- Replaced the generic projectile image path with a dedicated `Bullet` entity so projectile rendering and Arcade body motion are owned by the same object.
+- Updated the alpha scene to track bullets directly, use per-bullet overlap handling, and cull bullets without relying on the previous physics group setup.
+- Ran `npm test`; all three test files passed for a total of 13 assertions, including the infected velocity alignment assertion.
+- Ran `npm run build`; the production build completed successfully after the projectile/entity integration and keybinding updates.
+- Completed user-requested fix pass: applied `keybindings.md`, aligned infected runtime speed to the documented value, and replaced the bullet implementation to address the static projectile rendering issue.
+- Current product state: the projectile path and input bindings are verified, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:10
+- Aligned runtime card constants to the updated HLD values directly: player velocity `500`, common infected velocity `100`, and pistol velocity `200`.
+- Removed the disconnected player horizontal runtime speed so left/right movement now uses `PLAYER_CARD.velocity` directly; bullet travel now uses `PISTOL_CARD.velocity` directly.
+- Current product state: the game constants no longer apply hidden conversion or stale duplicate values for the updated card-defined pixel speeds.
+
+### 05/05/2026 22:12
+- Updated the stale enemy velocity test expectation to the new HLD value after the direct card-value cleanup.
+- Ran `npm test`; all three test files passed for a total of 13 assertions.
+- Ran `npm run build`; the production build completed successfully with the direct card-value wiring in place.
+- Completed user-requested cleanup: runtime player movement, infected movement, and pistol bullet speed now use the updated HLD card values directly with no conversion layer.
+- Current product state: the code and tests are aligned to the updated pixel-based card values, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:14
+- Read the updated `docs/hld/levels/alpha.md` level format and confirmed the implementation still uses the older hardcoded width and spawn locations.
+- Confirmed with the user to adopt the new alpha level definition in code.
+- Current product state: implementation work is starting on level-driven alpha width and spawn wiring.

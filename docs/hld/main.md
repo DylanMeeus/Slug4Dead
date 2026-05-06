@@ -15,6 +15,7 @@ grows larger.
 
 ## Technology Choices
 
+### Game Technology 
 We want to limit friction for users to try out this game. As such, to avoid installations and
 because modern machines are quite powerful, we will run this game entirely in a web browser. We wil
 l build this game with the following technologies:
@@ -24,3 +25,12 @@ l build this game with the following technologies:
 * Phaser 3: This is a game development framework and a good fit for 2d sprite-based action games
 * Vite: Dev tooling for iterative development
 
+### Deployment / Infrastructure
+For the infrastructure, we're going to host this website/game on AWS lightsail. These are the
+important technology choices:
+
+* Docker - we'll containerize the entire application into a single container image, so that it can
+  easily be deployed in multiple environments.
+* Terraform - we'll extensively use infrastructure as code. If it's not in terraform, it should not
+  be deployed. 
+* AWS Lightsail - we'll deploy the website on AWS Lightsail

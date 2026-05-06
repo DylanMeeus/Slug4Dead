@@ -18,7 +18,7 @@ and time to the entry (up mm/dd/yyyy hh:mm format)
 
 3. Write tests for your code
 
-5. Be idiomatic, Go code reads like Go not Java. Typescript/React follows their idioms.
+5. Be idiomatic, TypeScript code reads like TypeScript not Java. 
 
 6. Before making any changes, summarize briefly the changes you want to make and ask for my
    permission explicitly. 
@@ -31,6 +31,8 @@ and time to the entry (up mm/dd/yyyy hh:mm format)
 9. Bugs will be recorded in the bugs/ directory. When you solve a bug, make sure you note it down in
    the state file. If the behaviour of the bug is uncleark, ask instructions.
 
+10. Files called `definitions.md` define the meaning of the json fields you'll find in the
+    respective files in that folder
 
 ## Working with art
 
@@ -38,3 +40,4 @@ In the absence of actual sprites for a given character (either player or enemy),
 stand-in. For example, you can render the player as a red rectangle and the enemy as a blue circle.
 It doesn't really matter how you render them, as long as each type is uniquely identifiable. That'll
 make development and debugging easier.
+

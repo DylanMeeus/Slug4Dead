@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 
-import { PLAYER_MOVEMENT, PLAYER_SIZE } from "../constants";
+import { PLAYER_CARD, PLAYER_MOVEMENT, PLAYER_SIZE } from "../constants";
 
 const PLAYER_TEXTURE_KEY = "__player";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
+  private healthPoints: number = PLAYER_CARD.health;
   private readonly movementKeys: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
@@ -26,8 +27,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     body.setSize(PLAYER_SIZE.width, PLAYER_SIZE.height);
 
     this.movementKeys = scene.input.keyboard!.addKeys({
-      left: Phaser.Input.Keyboard.KeyCodes.LEFT,
-      right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
       jump: Phaser.Input.Keyboard.KeyCodes.SPACE
     }) as {
       left: Phaser.Input.Keyboard.Key;
@@ -40,10 +41,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const body = this.body as Phaser.Physics.Arcade.Body;
 
     if (this.movementKeys.left.isDown) {
-      this.setVelocityX(-PLAYER_MOVEMENT.speed);
+      this.setVelocityX(-PLAYER_CARD.velocity);
       this.setFlipX(true);
     } else if (this.movementKeys.right.isDown) {
-      this.setVelocityX(PLAYER_MOVEMENT.speed);
+      this.setVelocityX(PLAYER_CARD.velocity);
       this.setFlipX(false);
     } else {
       this.setVelocityX(0);
@@ -53,8 +54,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       Phaser.Input.Keyboard.JustDown(this.movementKeys.jump) &&
       body.blocked.down
     ) {
-      this.setVelocityY(-PLAYER_MOVEMENT.jumpVelocity);
+      this.setVelocityY(-PLAYER_MOVEMENT.jumpVelocityPixelsPerSecond);
     }
+  }
+
+  public applyDamage(damage: number): number {
+    this.healthPoints = Math.max(0, this.healthPoints - damage);
+    return this.healthPoints;
+  }
+
+  public getHealth(): number {
+    return this.healthPoints;
   }
 
   private static ensureTexture(scene: Phaser.Scene): void {

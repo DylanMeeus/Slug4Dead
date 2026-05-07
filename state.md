@@ -268,6 +268,16 @@
 - Updated `AIDocs/sprite_generation.md` to document the no-embedded-weapons rule and the empty-handed regeneration pass, including the rationale that weapons should be rendered as separate overlay sprites.
 - Current product state: Bill and Zoey player art no longer bakes weapons into the character frames; the runtime still uses placeholder player rendering until a later implementation pass wires in player and weapon sprites.
 
+### 05/06/2026 21:46
+- Wired the generated Bill and Zoey player spritesheets into the runtime player entity.
+- Added player spritesheet constants and display sizing for generated player art while keeping Louis and Francis on the placeholder texture until their art exists.
+- Updated the alpha level preload path to load player spritesheets, and updated `Player` to choose the selected survivor texture, create idle/walking animations, and switch animations based on movement.
+- Preserved the existing survivor selection flow; choosing Bill or Zoey now affects runtime player rendering, and campaign progression/restart preserve the selected survivor.
+- Added constants coverage for generated player spritesheet metadata and placeholder fallback behavior for survivors without art.
+- Ran `npm test`; all 3 test files passed with 22 tests.
+- Ran `npm run build`; the production build passed. Vite reported the existing non-blocking chunk-size warning, now including the bundled player spritesheet PNG assets.
+- Current product state: Bill and Zoey render from their generated spritesheets in-game, while Louis and Francis remain selectable but use the placeholder player texture.
+
 ### 05/06/2026 21:11
 - Started and completed the approved spitter animation hook-up.
 - Added Vite asset typing, imported the generated spitter sprite sheet and metadata, and exposed the sprite metadata through `SPITTER_SPRITESHEET`.

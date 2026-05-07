@@ -1,30 +1,88 @@
 import Phaser from "phaser";
 
-import { PLAYER_CARD, PLAYER_MOVEMENT, PLAYER_SIZE } from "../constants";
+import billSpritesheetUrl from "../../../docs/art/players/bill/bill-spritesheet.png";
+import zoeySpritesheetUrl from "../../../docs/art/players/zoey/zoey-spritesheet.png";
+import {
+  hasPlayerSpritesheet,
+  PLAYER_CARD,
+  PLAYER_DISPLAY_SIZE,
+  PLAYER_MOVEMENT,
+  PLAYER_SIZE,
+  PLAYER_SPRITESHEETS,
+  type SpritesheetSurvivorName,
+  type SurvivorName
+} from "../constants";
 
 const PLAYER_TEXTURE_KEY = "__player";
+const PLAYER_TEXTURE_KEYS: Record<SpritesheetSurvivorName, string> = {
+  Bill: "player-bill-spritesheet",
+  Zoey: "player-zoey-spritesheet"
+};
+const PLAYER_SPRITESHEET_URLS: Record<SpritesheetSurvivorName, string> = {
+  Bill: billSpritesheetUrl,
+  Zoey: zoeySpritesheetUrl
+};
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private healthPoints: number = PLAYER_CARD.health;
+  private readonly idleAnimationKey?: string;
+  private readonly walkingAnimationKey?: string;
   private readonly movementKeys: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
     jump: Phaser.Input.Keyboard.Key;
   };
 
-  public constructor(scene: Phaser.Scene, x: number, y: number) {
-    Player.ensureTexture(scene);
-    super(scene, x, y, PLAYER_TEXTURE_KEY);
+  public static preloadAssets(scene: Phaser.Scene): void {
+    for (const survivorName of Object.keys(
+      PLAYER_TEXTURE_KEYS
+    ) as SpritesheetSurvivorName[]) {
+      const textureKey = PLAYER_TEXTURE_KEYS[survivorName];
+      if (scene.textures.exists(textureKey)) {
+        continue;
+      }
+
+      const spritesheet = PLAYER_SPRITESHEETS[survivorName];
+      scene.load.spritesheet(textureKey, PLAYER_SPRITESHEET_URLS[survivorName], {
+        frameWidth: spritesheet.frameWidth,
+        frameHeight: spritesheet.frameHeight
+      });
+    }
+  }
+
+  public constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    survivorName: SurvivorName
+  ) {
+    Player.ensurePlaceholderTexture(scene);
+    const textureKey = Player.getTextureKey(survivorName);
+    super(scene, x, y, textureKey);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setDisplaySize(PLAYER_SIZE.width, PLAYER_SIZE.height);
+    if (hasPlayerSpritesheet(survivorName)) {
+      Player.ensureAnimations(scene, survivorName);
+      this.idleAnimationKey = Player.getAnimationKey(survivorName, "idle");
+      this.walkingAnimationKey = Player.getAnimationKey(survivorName, "walking");
+      this.play(this.idleAnimationKey);
+      this.setDisplaySize(PLAYER_DISPLAY_SIZE.width, PLAYER_DISPLAY_SIZE.height);
+    } else {
+      this.setDisplaySize(PLAYER_SIZE.width, PLAYER_SIZE.height);
+      this.setTint(0xf6f1d1);
+    }
+
     this.setCollideWorldBounds(true);
     this.setBounce(0);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(PLAYER_SIZE.width, PLAYER_SIZE.height);
+    body.setOffset(
+      (this.width - PLAYER_SIZE.width) / 2,
+      this.height - PLAYER_SIZE.height
+    );
 
     this.movementKeys = scene.input.keyboard!.addKeys({
       left: Phaser.Input.Keyboard.KeyCodes.A,
@@ -39,16 +97,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   public update(): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
+    let isWalking = false;
 
     if (this.movementKeys.left.isDown) {
       this.setVelocityX(-PLAYER_CARD.velocity);
-      this.setFlipX(true);
+      this.setFlipX(false);
+      isWalking = true;
     } else if (this.movementKeys.right.isDown) {
       this.setVelocityX(PLAYER_CARD.velocity);
-      this.setFlipX(false);
+      this.setFlipX(true);
+      isWalking = true;
     } else {
       this.setVelocityX(0);
     }
+
+    this.syncAnimation(isWalking);
 
     if (
       Phaser.Input.Keyboard.JustDown(this.movementKeys.jump) &&
@@ -67,7 +130,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.healthPoints;
   }
 
-  private static ensureTexture(scene: Phaser.Scene): void {
+  private syncAnimation(isWalking: boolean): void {
+    const nextAnimationKey = isWalking
+      ? this.walkingAnimationKey
+      : this.idleAnimationKey;
+
+    if (!nextAnimationKey || this.anims.currentAnim?.key === nextAnimationKey) {
+      return;
+    }
+
+    this.play(nextAnimationKey, true);
+  }
+
+  private static ensurePlaceholderTexture(scene: Phaser.Scene): void {
     if (scene.textures.exists(PLAYER_TEXTURE_KEY)) {
       return;
     }
@@ -81,5 +156,56 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       PLAYER_SIZE.height
     );
     graphics.destroy();
+  }
+
+  private static getTextureKey(survivorName: SurvivorName): string {
+    if (!hasPlayerSpritesheet(survivorName)) {
+      return PLAYER_TEXTURE_KEY;
+    }
+
+    return PLAYER_TEXTURE_KEYS[survivorName];
+  }
+
+  private static getAnimationKey(
+    survivorName: SpritesheetSurvivorName,
+    animationName: "idle" | "walking"
+  ): string {
+    return `player-${survivorName.toLowerCase()}-${animationName}`;
+  }
+
+  private static ensureAnimations(
+    scene: Phaser.Scene,
+    survivorName: SpritesheetSurvivorName
+  ): void {
+    const spritesheet = PLAYER_SPRITESHEETS[survivorName];
+    const textureKey = PLAYER_TEXTURE_KEYS[survivorName];
+
+    const idleKey = Player.getAnimationKey(survivorName, "idle");
+    if (!scene.anims.exists(idleKey)) {
+      const idle = spritesheet.animations.idle;
+      scene.anims.create({
+        key: idleKey,
+        frames: scene.anims.generateFrameNumbers(textureKey, {
+          start: idle.startFrame,
+          end: idle.endFrame
+        }),
+        frameRate: idle.frameRate,
+        repeat: idle.repeat
+      });
+    }
+
+    const walkingKey = Player.getAnimationKey(survivorName, "walking");
+    if (!scene.anims.exists(walkingKey)) {
+      const walking = spritesheet.animations.walking;
+      scene.anims.create({
+        key: walkingKey,
+        frames: scene.anims.generateFrameNumbers(textureKey, {
+          start: walking.startFrame,
+          end: walking.endFrame
+        }),
+        frameRate: walking.frameRate,
+        repeat: walking.repeat
+      });
+    }
   }
 }

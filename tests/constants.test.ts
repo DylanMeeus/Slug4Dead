@@ -16,12 +16,15 @@ import {
   normalizeLevelDefinition,
   PISTOL_CARD,
   PLAYER_CARD,
+  PLAYER_DISPLAY_SIZE,
   PLAYER_MOVEMENT,
+  PLAYER_SPRITESHEETS,
   SPITTER_DISPLAY_SIZE,
   SPITTER_INFECTED_PROJECTILE,
   SPITTER_INFECTED_STATS,
   SPITTER_SPRITESHEET,
   SURVIVORS,
+  hasPlayerSpritesheet,
   isSurvivorName
 } from "../src/game/constants";
 
@@ -51,6 +54,27 @@ describe("game constants", () => {
     expect(isSurvivorName("Bill")).toBe(true);
     expect(isSurvivorName("Zoey")).toBe(true);
     expect(isSurvivorName("Unknown")).toBe(false);
+  });
+
+  it("defines player spritesheets for survivors with generated art", () => {
+    expect(hasPlayerSpritesheet("Bill")).toBe(true);
+    expect(hasPlayerSpritesheet("Zoey")).toBe(true);
+    expect(hasPlayerSpritesheet("Louis")).toBe(false);
+    expect(hasPlayerSpritesheet("Francis")).toBe(false);
+    expect(PLAYER_DISPLAY_SIZE).toEqual({
+      width: 64,
+      height: 96
+    });
+    expect(PLAYER_SPRITESHEETS.Bill.animations.idle).toMatchObject({
+      startFrame: 0,
+      endFrame: 6,
+      repeat: -1
+    });
+    expect(PLAYER_SPRITESHEETS.Zoey.animations.walking).toMatchObject({
+      startFrame: 7,
+      endFrame: 13,
+      repeat: -1
+    });
   });
 
   it("defines the common infected placeholder stats and patrol range", () => {

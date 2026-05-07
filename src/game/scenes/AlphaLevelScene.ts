@@ -69,6 +69,7 @@ export class AlphaLevelScene extends Phaser.Scene {
   }
 
   public preload(): void {
+    Player.preloadAssets(this);
     SpitterInfected.preloadAssets(this);
   }
 
@@ -133,9 +134,9 @@ export class AlphaLevelScene extends Phaser.Scene {
     this.player = new Player(
       this,
       this.currentLevel.playerSpawnLocation,
-      playerStartY
+      playerStartY,
+      this.currentSurvivor
     );
-    this.player.setTint(0xf6f1d1);
 
     this.physics.add.collider(this.player, this.floor);
     this.physics.add.overlap(this.player, this.safeZone, () => {

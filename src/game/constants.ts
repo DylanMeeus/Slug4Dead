@@ -1,6 +1,8 @@
 import alpha1Level from "./levels/alpha/alpha_1.json";
 import alpha2Level from "./levels/alpha/alpha_2.json";
+import billSpritesheet from "../../docs/art/players/bill/bill-spritesheet.json";
 import spitterSpritesheet from "../../docs/art/enemies/spitter/spitter-spritesheet.json";
+import zoeySpritesheet from "../../docs/art/players/zoey/zoey-spritesheet.json";
 
 export const GAME_TITLE = "Slug4Dead";
 
@@ -12,6 +14,11 @@ export const SAFE_ZONE_WIDTH = 72;
 export const PLAYER_SIZE = {
   width: 28,
   height: 44
+} as const;
+
+export const PLAYER_DISPLAY_SIZE = {
+  width: 64,
+  height: 96
 } as const;
 
 export const PLAYER_CARD = {
@@ -30,6 +37,22 @@ export type SurvivorName = (typeof SURVIVORS)[number];
 
 export function isSurvivorName(name: string): name is SurvivorName {
   return SURVIVORS.some((survivor) => survivor === name);
+}
+
+export const PLAYER_SPRITESHEETS = {
+  Bill: billSpritesheet,
+  Zoey: zoeySpritesheet
+} as const;
+
+export type SpritesheetSurvivorName = keyof typeof PLAYER_SPRITESHEETS;
+
+export function hasPlayerSpritesheet(
+  survivorName: SurvivorName
+): survivorName is SpritesheetSurvivorName {
+  return Object.prototype.hasOwnProperty.call(
+    PLAYER_SPRITESHEETS,
+    survivorName
+  );
 }
 
 export const COMMON_INFECTED_STATS = {

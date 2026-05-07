@@ -45,6 +45,9 @@ parent but with a number suffix. For example `alpha_1`. The number defines the o
 levels are played. All levels under a folder belong to the same `campaign`. The main menu lets the
 user choose a `campaign` to play. (More details in the Appendix under `## level loading mechanism`).
 
+Once the player has chosen a `campaign`, they have to choose a survivor to play with. The choices
+are: Bill, Louis, Francis, Zoey. 
+
 2. in-level
 When we are in a level, we have a few states that the game can be in which defines which actions can
 happen. 

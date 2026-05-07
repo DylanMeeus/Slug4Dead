@@ -1,5 +1,6 @@
 # Spitter Infected
 
+
 This infected is a type of 'special' infected. A special infected has special abilities that a
 common infected does not have. They are harder to kill, and usually do more damange to the player.
 
@@ -29,3 +30,12 @@ a straight line once fired at the player.
     projectile_velocity: 300,
 }
 ```
+
+## Art
+
+sprite-sheet location: `/docs/art/enemies/spitter`
+The spitter has 2 states:
+1. idle (when the spitter is not 'spitting')
+2. spitting (when the spitter is attacking the player)
+
+The spritesheet contains animations for both.

@@ -1,28 +1,51 @@
 import Phaser from "phaser";
 
+import spitterSpritesheetUrl from "../../../docs/art/enemies/spitter/spitter-spritesheet.png";
 import {
+  SPITTER_DISPLAY_SIZE,
   SPITTER_INFECTED_PROJECTILE,
-  SPITTER_INFECTED_STATS
+  SPITTER_INFECTED_STATS,
+  SPITTER_SPRITESHEET
 } from "../constants";
 import { resolveVelocityVector, type VelocityVector } from "../trajectory";
 
-const SPITTER_TEXTURE_KEY = "__spitter";
+const SPITTER_TEXTURE_KEY = "spitter-spritesheet";
+const SPITTER_IDLE_ANIMATION_KEY = "spitter-idle";
+const SPITTER_SPITTING_ANIMATION_KEY = "spitter-spitting";
 
 export class SpitterInfected extends Phaser.Physics.Arcade.Sprite {
   private healthPoints: number = SPITTER_INFECTED_STATS.health;
   private nextProjectileTimeMs = 0;
   public readonly damage = SPITTER_INFECTED_STATS.damage;
 
+  public static preloadAssets(scene: Phaser.Scene): void {
+    if (scene.textures.exists(SPITTER_TEXTURE_KEY)) {
+      return;
+    }
+
+    scene.load.spritesheet(SPITTER_TEXTURE_KEY, spitterSpritesheetUrl, {
+      frameWidth: SPITTER_SPRITESHEET.frameWidth,
+      frameHeight: SPITTER_SPRITESHEET.frameHeight
+    });
+  }
+
   public constructor(scene: Phaser.Scene, x: number, y: number) {
-    SpitterInfected.ensureTexture(scene);
+    SpitterInfected.ensureAnimations(scene);
     super(scene, x, y, SPITTER_TEXTURE_KEY);
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setDisplaySize(30, 46);
-    this.setTint(0x67d6cc);
+    this.setDisplaySize(SPITTER_DISPLAY_SIZE.width, SPITTER_DISPLAY_SIZE.height);
+    const body = this.body as Phaser.Physics.Arcade.Body;
+    body.setSize(
+      SPITTER_SPRITESHEET.frameWidth,
+      SPITTER_SPRITESHEET.frameHeight,
+      true
+    );
+
     this.setCollideWorldBounds(true);
+    this.play(SPITTER_IDLE_ANIMATION_KEY);
     this.scheduleNextProjectile(scene.time.now);
   }
 
@@ -40,6 +63,7 @@ export class SpitterInfected extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.scheduleNextProjectile(nowMs);
+    this.playSpittingAnimation();
     return resolveVelocityVector(
       this.x,
       this.y,
@@ -67,15 +91,40 @@ export class SpitterInfected extends Phaser.Physics.Arcade.Sprite {
       );
   }
 
-  private static ensureTexture(scene: Phaser.Scene): void {
-    if (scene.textures.exists(SPITTER_TEXTURE_KEY)) {
-      return;
+  private playSpittingAnimation(): void {
+    this.play(SPITTER_SPITTING_ANIMATION_KEY, true);
+    this.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () => {
+      if (this.active) {
+        this.play(SPITTER_IDLE_ANIMATION_KEY, true);
+      }
+    });
+  }
+
+  private static ensureAnimations(scene: Phaser.Scene): void {
+    if (!scene.anims.exists(SPITTER_IDLE_ANIMATION_KEY)) {
+      const idle = SPITTER_SPRITESHEET.animations.idle;
+      scene.anims.create({
+        key: SPITTER_IDLE_ANIMATION_KEY,
+        frames: scene.anims.generateFrameNumbers(SPITTER_TEXTURE_KEY, {
+          start: idle.startFrame,
+          end: idle.endFrame
+        }),
+        frameRate: idle.frameRate,
+        repeat: idle.repeat
+      });
     }
 
-    const graphics = scene.make.graphics({ x: 0, y: 0 }, false);
-    graphics.fillStyle(0xffffff);
-    graphics.fillRect(0, 0, 30, 46);
-    graphics.generateTexture(SPITTER_TEXTURE_KEY, 30, 46);
-    graphics.destroy();
+    if (!scene.anims.exists(SPITTER_SPITTING_ANIMATION_KEY)) {
+      const spitting = SPITTER_SPRITESHEET.animations.spitting;
+      scene.anims.create({
+        key: SPITTER_SPITTING_ANIMATION_KEY,
+        frames: scene.anims.generateFrameNumbers(SPITTER_TEXTURE_KEY, {
+          start: spitting.startFrame,
+          end: spitting.endFrame
+        }),
+        frameRate: spitting.frameRate,
+        repeat: spitting.repeat
+      });
+    }
   }
 }

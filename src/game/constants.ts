@@ -1,5 +1,6 @@
 import alpha1Level from "./levels/alpha/alpha_1.json";
 import alpha2Level from "./levels/alpha/alpha_2.json";
+import spitterSpritesheet from "../../docs/art/enemies/spitter/spitter-spritesheet.json";
 
 export const GAME_TITLE = "Slug4Dead";
 
@@ -23,6 +24,14 @@ export const PLAYER_MOVEMENT = {
   damageCooldownMs: 500
 } as const;
 
+export const SURVIVORS = ["Bill", "Louis", "Francis", "Zoey"] as const;
+
+export type SurvivorName = (typeof SURVIVORS)[number];
+
+export function isSurvivorName(name: string): name is SurvivorName {
+  return SURVIVORS.some((survivor) => survivor === name);
+}
+
 export const COMMON_INFECTED_STATS = {
   name: "common",
   health: 10,
@@ -43,11 +52,18 @@ export const SPITTER_INFECTED_STATS = {
   velocity: 150
 } as const;
 
+export const SPITTER_DISPLAY_SIZE = {
+  width: 45,
+  height: 69
+} as const;
+
 export const SPITTER_INFECTED_PROJECTILE = {
   velocity: 300,
   minFireDelayMs: 1000,
   maxFireDelayMs: 3000
 } as const;
+
+export const SPITTER_SPRITESHEET = spitterSpritesheet;
 
 export const PISTOL_CARD = {
   magSize: 15,

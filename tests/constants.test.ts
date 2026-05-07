@@ -17,8 +17,12 @@ import {
   PISTOL_CARD,
   PLAYER_CARD,
   PLAYER_MOVEMENT,
+  SPITTER_DISPLAY_SIZE,
   SPITTER_INFECTED_PROJECTILE,
-  SPITTER_INFECTED_STATS
+  SPITTER_INFECTED_STATS,
+  SPITTER_SPRITESHEET,
+  SURVIVORS,
+  isSurvivorName
 } from "../src/game/constants";
 
 describe("game constants", () => {
@@ -40,6 +44,13 @@ describe("game constants", () => {
       velocity: 200
     });
     expect(PLAYER_MOVEMENT.jumpVelocityPixelsPerSecond).toBeGreaterThan(0);
+  });
+
+  it("defines the selectable survivors from the gameplay loop", () => {
+    expect(SURVIVORS).toEqual(["Bill", "Louis", "Francis", "Zoey"]);
+    expect(isSurvivorName("Bill")).toBe(true);
+    expect(isSurvivorName("Zoey")).toBe(true);
+    expect(isSurvivorName("Unknown")).toBe(false);
   });
 
   it("defines the common infected placeholder stats and patrol range", () => {
@@ -124,16 +135,12 @@ describe("game constants", () => {
     expect(ALPHA_LEVEL.playerSpawnLocation).toBe(50);
     expect(ALPHA_LEVEL.enemies).toEqual([
       {
-        type: "common",
+        type: "spitter",
         spawnLocation: 500
       },
       {
         type: "common",
         spawnLocation: 1000
-      },
-      {
-        type: "spitter",
-        spawnLocation: 1500
       }
     ]);
   });
@@ -150,6 +157,28 @@ describe("game constants", () => {
     expect(SPITTER_INFECTED_PROJECTILE.maxFireDelayMs).toBeGreaterThan(
       SPITTER_INFECTED_PROJECTILE.minFireDelayMs
     );
+  });
+
+  it("defines the spitter display size at 1.5x the previous runtime size", () => {
+    expect(SPITTER_DISPLAY_SIZE).toEqual({
+      width: 45,
+      height: 69
+    });
+  });
+
+  it("defines the spitter sprite sheet animation frames", () => {
+    expect(SPITTER_SPRITESHEET.frameWidth).toBe(256);
+    expect(SPITTER_SPRITESHEET.frameHeight).toBe(384);
+    expect(SPITTER_SPRITESHEET.animations.idle).toMatchObject({
+      startFrame: 0,
+      endFrame: 6,
+      repeat: -1
+    });
+    expect(SPITTER_SPRITESHEET.animations.spitting).toMatchObject({
+      startFrame: 7,
+      endFrame: 13,
+      repeat: 0
+    });
   });
 
   it("defines the pistol card", () => {

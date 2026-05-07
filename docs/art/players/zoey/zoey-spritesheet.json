@@ -1,0 +1,29 @@
+{
+  "image": "zoey-spritesheet.png",
+  "frameWidth": 256,
+  "frameHeight": 384,
+  "columns": 7,
+  "rows": 2,
+  "animations": {
+    "idle": {
+      "row": 0,
+      "startFrame": 0,
+      "endFrame": 6,
+      "frameRate": 6,
+      "repeat": -1
+    },
+    "walking": {
+      "row": 1,
+      "startFrame": 7,
+      "endFrame": 13,
+      "frameRate": 10,
+      "repeat": -1
+    }
+  },
+  "notes": [
+    "Sprite faces left.",
+    "The sheet uses a fixed 7x2 grid for Phaser spritesheet loading.",
+    "Row 0 contains idle frames; row 1 contains walking frames.",
+    "Generated from Zoey reference images under docs/art/reference/players/zoey."
+  ]
+}

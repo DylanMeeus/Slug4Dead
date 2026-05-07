@@ -226,6 +226,12 @@
 - Completed HLD-aligned requirements: ordered alpha campaign loading, level completion state, victory recap/campaign win flow, and documented dead/pause button flows.
 - Current product state: code, tests, and README are aligned with the current HLD documents for the implemented alpha campaign slice; files under `docs/` were not modified.
 
+### 05/06/2026 21:00
+- Created the spitter enemy art asset folder at `docs/art/enemies/spitter`.
+- Generated a 16-bit-style transparent spitter sprite sheet with two animation states: idle and spitting.
+- Added `docs/art/enemies/spitter/spitter-spritesheet.png` as a fixed 7-column by 2-row sprite sheet and `docs/art/enemies/spitter/spitter-spritesheet.json` to document frame dimensions and animation ranges.
+- Current product state: spitter reference art remains under `docs/art/reference/enemies/spitter`, while the generated usable game asset now lives under `docs/art/enemies/spitter`.
+
 ### 05/06/2026 20:59
 - Started the approved runtime level JSON implementation pass.
 - Planned changes: read the updated level loading HLD, add generated/editable JSON level files for the alpha campaign, load level definitions from JSON instead of hardcoded constants, validate known enemy types and level shape in tests, and document the docs-to-JSON precedence rule.
@@ -242,3 +248,78 @@
 - Ran `npm run build`; the production build passed with the existing non-blocking Phaser bundle-size warning.
 - Completed HLD-aligned requirement: runtime level data now lives in editable JSON files generated from docs instead of hardcoded TypeScript spawn definitions.
 - Current product state: alpha campaign level definitions are JSON-driven at runtime; files under `docs/` were not modified.
+
+### 05/06/2026 21:26
+- Created generated 16-bit-style player sprite asset folders at `docs/art/players/bill` and `docs/art/players/zoey` with user approval to modify files under `docs/`.
+- Generated Bill and Zoey player spritesheets from the existing reference images under `docs/art/reference/players/bill` and `docs/art/reference/players/zoey`.
+- Added `docs/art/players/bill/bill-spritesheet.png` and `docs/art/players/zoey/zoey-spritesheet.png` as fixed 7-column by 2-row RGBA sprite sheets sized `1792x768`, with `256x384` frames.
+- Added `docs/art/players/bill/bill-spritesheet.json` and `docs/art/players/zoey/zoey-spritesheet.json` documenting two animation states: `idle` on row 0 and `walking` on row 1.
+- Current product state: player character art assets now exist for Bill and Zoey, but runtime player rendering still uses the existing placeholder texture until a later implementation pass wires these spritesheets into Phaser.
+
+### 05/06/2026 21:28
+- Added `AIDocs/sprite_generation.md` to document the AI-assisted player sprite generation workflow used for the first Bill and Zoey spritesheet pass.
+- Documented reference image inspection, image generation prompt structure, generated source file locations, `ffmpeg` post-processing, output asset paths, metadata JSON structure, and future art-direction notes.
+- Current product state: the project now has root-level AI documentation for reproducing or improving the player spritesheet generation process.
+
+### 05/06/2026 21:37
+- Regenerated the Bill and Zoey player spritesheets with user approval to overwrite the previous weapon-holding PNGs.
+- Updated `docs/art/players/bill/bill-spritesheet.png` and `docs/art/players/zoey/zoey-spritesheet.png` so both characters are empty-handed in idle and walking frames.
+- Preserved the existing spritesheet layout and metadata contract: `1792x768` RGBA PNGs, fixed 7-column by 2-row sheets, `256x384` frames, idle row 0, walking row 1.
+- Updated `AIDocs/sprite_generation.md` to document the no-embedded-weapons rule and the empty-handed regeneration pass, including the rationale that weapons should be rendered as separate overlay sprites.
+- Current product state: Bill and Zoey player art no longer bakes weapons into the character frames; the runtime still uses placeholder player rendering until a later implementation pass wires in player and weapon sprites.
+
+### 05/06/2026 21:11
+- Started and completed the approved spitter animation hook-up.
+- Added Vite asset typing, imported the generated spitter sprite sheet and metadata, and exposed the sprite metadata through `SPITTER_SPRITESHEET`.
+- Updated `SpitterInfected` to preload the real sprite sheet, create `idle` and `spitting` Phaser animations, play `idle` by default, and play `spitting` whenever a projectile attack is fired before returning to `idle`.
+- Updated `AlphaLevelScene` to preload spitter art before creating level entities.
+- Added constants coverage for the spitter sprite sheet frame dimensions and animation ranges, and refreshed the alpha level layout expectation to match the current JSON runtime source.
+- Ran `npm test`; all 3 test files passed with 19 tests.
+- Ran `npm run build`; the production build passed and emitted the bundled spitter sprite sheet asset, with the existing non-blocking Phaser chunk-size warning remaining.
+- Current product state: spitter enemies now use the generated 16-bit sprite sheet animations instead of the placeholder texture path.
+
+### 05/06/2026 21:20
+- Increased the rendered spitter enemy size from `30x46` to `45x69`, which is 1.5x the previous runtime display size.
+- Added a `SPITTER_DISPLAY_SIZE` constant and updated `SpitterInfected` to use it.
+- Updated the spitter Arcade Physics body sizing so the hitbox scales with the rendered sprite frame instead of becoming tighter than the visual.
+- Added constants coverage for the new spitter display size.
+- Ran `npm test`; all 3 test files passed with 20 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: spitter enemies render larger and keep a matching collision body for player attacks and contact clarity.
+
+### 05/06/2026 21:24
+- Started the approved player-selection implementation pass after re-reading the updated `docs/hld/systems/loop.md`.
+- Added the documented survivor choices `Bill`, `Louis`, `Francis`, and `Zoey` to runtime constants with a type guard.
+- Updated the pre-level menu flow so selecting a campaign opens a survivor-selection screen before loading the level.
+- Updated alpha level start data to carry the selected survivor, display it in the HUD, and preserve it across level restart and next-level continuation.
+- Added constants coverage for the survivor list and survivor type guard.
+- Ran `npm test`; all 3 test files passed with 21 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Completed HLD-aligned requirement: pre-level flow now requires campaign selection followed by survivor selection before loading the first campaign level.
+- Current product state: the HLD-aligned campaign-then-survivor pre-level flow is implemented and verified.
+
+### 05/06/2026 21:30
+- Started the approved fix for the reported bug where spitter enemies fell through the floor immediately after spawning.
+- Identified the likely cause as the recent full-frame `256x384` Arcade body sizing plus a spawn Y still based on the old smaller placeholder enemy.
+- Updated `SpitterInfected` so its Arcade body uses the same `45x69` logical size as the rendered spitter display size and removed the manual body update call.
+- Updated spitter spawn Y calculation to place the larger spitter body directly on top of the floor using `SPITTER_DISPLAY_SIZE.height / 2`.
+- Refreshed the alpha level layout test expectation to match the current runtime JSON source, where the first alpha 1 enemy is a spitter at `500`.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Ran `npm test`; all 3 test files passed with 21 tests.
+- Solved reported bug: spitter enemies should no longer fall through the floor immediately after spawning.
+- Current product state: the spitter floor-collision bug fix is implemented and verified.
+
+### 05/06/2026 21:34
+- Started the approved follow-up fix after the user reported the spitter was still halfway inside the floor.
+- Corrected the spitter Arcade body source size back to the full `256x384` spritesheet frame while keeping spawn placement based on the rendered `45x69` display height.
+- Ran `npm test`; all 3 test files passed with 21 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: the spitter body should now scale with the rendered spritesheet frame instead of being scaled down twice, so floor collision should align with the sprite bottom.
+
+### 05/06/2026 21:37
+- Adjusted only the bottom padding in `docs/art/enemies/spitter/spitter-spritesheet.png` after confirming each frame had `12-13` transparent source pixels below the visible feet.
+- Shifted each frame's non-transparent pixels downward inside the existing `256x384` cells so all `idle` and `spitting` frames now have `0` transparent source pixels below the visible sprite bottom.
+- Kept the sprite sheet dimensions and `spitter-spritesheet.json` metadata unchanged.
+- Ran `npm test`; all 3 test files passed with 21 tests.
+- Ran `npm run build`; the production build passed and emitted the updated bundled spitter sprite sheet, with the existing non-blocking Phaser chunk-size warning remaining.
+- Current product state: spitter sprite bottom alignment is corrected at the asset level instead of using a runtime Y-offset.

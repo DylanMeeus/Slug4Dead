@@ -28,12 +28,17 @@ import {
   SAFE_ZONE_WIDTH,
   SCENE_KEYS,
   SPITTER_INFECTED_PROJECTILE,
-  SPITTER_INFECTED_STATS
+  SPITTER_INFECTED_STATS,
+  SPITTER_DISPLAY_SIZE,
+  type SurvivorName,
+  isSurvivorName,
+  SURVIVORS
 } from "../constants";
 
 type AlphaLevelStartData = {
   campaignKey?: string;
   levelIndex?: number;
+  survivorName?: string;
 };
 
 export class AlphaLevelScene extends Phaser.Scene {
@@ -43,6 +48,7 @@ export class AlphaLevelScene extends Phaser.Scene {
   private currentCampaign: CampaignDefinition = CAMPAIGNS[0];
   private currentLevel: LevelDefinition = ALPHA_LEVEL;
   private currentLevelIndex = 0;
+  private currentSurvivor: SurvivorName = SURVIVORS[0];
   private player?: Player;
   private stateText?: Phaser.GameObjects.Text;
   private floor?: Phaser.GameObjects.Rectangle;
@@ -62,6 +68,10 @@ export class AlphaLevelScene extends Phaser.Scene {
     super(AlphaLevelScene.key);
   }
 
+  public preload(): void {
+    SpitterInfected.preloadAssets(this);
+  }
+
   public create(data: AlphaLevelStartData = {}): void {
     this.currentCampaign =
       CAMPAIGNS.find((campaign) => campaign.key === data.campaignKey) ??
@@ -72,6 +82,10 @@ export class AlphaLevelScene extends Phaser.Scene {
       this.currentCampaign.levels.length - 1
     );
     this.currentLevel = this.currentCampaign.levels[this.currentLevelIndex];
+    this.currentSurvivor =
+      data.survivorName && isSurvivorName(data.survivorName)
+        ? data.survivorName
+        : SURVIVORS[0];
     this.gameplayState = GAMEPLAY_STATES.alive;
     this.pistol = new Pistol();
     this.enemies.length = 0;
@@ -240,6 +254,7 @@ export class AlphaLevelScene extends Phaser.Scene {
 
     return [
       `Level: ${this.currentLevel.name}`,
+      `Survivor: ${this.currentSurvivor}`,
       `State: ${this.gameplayState}`,
       `Player: ${this.player?.getHealth() ?? PLAYER_CARD.health}hp / velocity ${PLAYER_CARD.velocity}`,
       `Pistol: ${this.pistol.getAmmo()}/${PISTOL_CARD.magSize} / fire rate ${PISTOL_CARD.fireRatePerSecond}/s`,
@@ -404,12 +419,13 @@ export class AlphaLevelScene extends Phaser.Scene {
     enemyType: LevelDefinition["enemies"][number]["type"],
     spawnLocation: number
   ): DamageableEnemy {
-    const spawnY = LEVEL_HEIGHT - FLOOR_HEIGHT - 20;
-
     if (enemyType === "spitter") {
+      const spawnY =
+        LEVEL_HEIGHT - FLOOR_HEIGHT - SPITTER_DISPLAY_SIZE.height / 2;
       return new SpitterInfected(this, spawnLocation, spawnY);
     }
 
+    const spawnY = LEVEL_HEIGHT - FLOOR_HEIGHT - 20;
     const enemy = new CommonInfected(this, spawnLocation, spawnY);
     enemy.setTint(0x9fe870);
     return enemy;
@@ -514,7 +530,8 @@ export class AlphaLevelScene extends Phaser.Scene {
 
       this.scene.start(SCENE_KEYS.alphaLevel, {
         campaignKey: this.currentCampaign.key,
-        levelIndex: this.currentLevelIndex + 1
+        levelIndex: this.currentLevelIndex + 1,
+        survivorName: this.currentSurvivor
       });
     });
   }
@@ -580,7 +597,8 @@ export class AlphaLevelScene extends Phaser.Scene {
   private restartCurrentLevel(): void {
     this.scene.start(SCENE_KEYS.alphaLevel, {
       campaignKey: this.currentCampaign.key,
-      levelIndex: this.currentLevelIndex
+      levelIndex: this.currentLevelIndex,
+      survivorName: this.currentSurvivor
     });
   }
 }

@@ -225,3 +225,20 @@
 - Ran `npm run build`; the production build passed with the existing non-blocking Phaser bundle-size warning.
 - Completed HLD-aligned requirements: ordered alpha campaign loading, level completion state, victory recap/campaign win flow, and documented dead/pause button flows.
 - Current product state: code, tests, and README are aligned with the current HLD documents for the implemented alpha campaign slice; files under `docs/` were not modified.
+
+### 05/06/2026 20:59
+- Started the approved runtime level JSON implementation pass.
+- Planned changes: read the updated level loading HLD, add generated/editable JSON level files for the alpha campaign, load level definitions from JSON instead of hardcoded constants, validate known enemy types and level shape in tests, and document the docs-to-JSON precedence rule.
+- Current product state: implementation is in progress; files under `docs/` will be read but not modified.
+
+### 05/06/2026 21:00
+- Completed the approved runtime level JSON implementation pass.
+- Read the updated `docs/hld/systems/loop.md` level loading mechanism, which now describes runtime JSON files under `src/game/levels/{level_name}/{level_x.json}`.
+- Added generated runtime level files `src/game/levels/alpha/alpha_1.json` and `src/game/levels/alpha/alpha_2.json` from the current alpha HLD definitions.
+- Updated `src/game/constants.ts` so the alpha campaign is built from imported JSON files through a normalizer that converts HLD-style snake_case fields to runtime camelCase fields and rejects unknown enemy types.
+- Updated `tests/constants.test.ts` to cover ordered alpha campaign loading, known enemy type validation, JSON field normalization, and unknown enemy rejection.
+- Updated `README.md` to document that `docs/hld/` is the design source, `src/game/levels/` JSON is the runtime source after generation, and JSON should only be overwritten from docs when regeneration is explicitly requested.
+- Ran `npm test`; all 3 test files passed with 18 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser bundle-size warning.
+- Completed HLD-aligned requirement: runtime level data now lives in editable JSON files generated from docs instead of hardcoded TypeScript spawn definitions.
+- Current product state: alpha campaign level definitions are JSON-driven at runtime; files under `docs/` were not modified.

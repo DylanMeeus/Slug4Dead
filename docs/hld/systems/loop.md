@@ -65,4 +65,5 @@ happen.
 
 Levels are defined under `levels/`. Each level name is defined by the name of the folder immediately
 underneath `levels/`, for example we have `levels/alpha`, so the level `alpha` should be displayed
-on the level selection menu.
+on the level selection menu. Levels are defined as `json` files in the codebase living under
+`src/game/levels/{level_name}/{level_x.json}`. For example `src/levels/alpha/alpha_1.json`.

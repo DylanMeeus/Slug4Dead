@@ -4,6 +4,8 @@ Slug4Dead is a browser-based 16-bit style 2D shooter inspired by Metal Slug and 
 
 The design source of truth lives under `docs/hld/`. Implementation should stay aligned with those documents, especially the player, entity, weapon, system, and level files.
 
+Runtime levels are loaded from JSON files under `src/game/levels/`. Those JSON files are generated from the HLD when explicitly requested, but they are the runtime source of truth after generation. Manual JSON edits should not be overwritten from `docs/` unless regeneration is explicitly requested.
+
 ## Current Playable Slice
 
 The game currently starts at a pre-level menu and launches the `alpha` campaign. The campaign contains `alpha 1` and `alpha 2`; each level is a flat 2000 pixel test area with a player spawn, common infected enemies, a spitter infected enemy, pistol shooting, health and damage handling, bullet travel, a HUD, pause/death states, victory flow, and a safe zone at the far end.
@@ -63,6 +65,7 @@ npm run build
 ├── src/
 │   ├── game/
 │   │   ├── entities/      # Player, enemies, bullets, weapons, projectiles
+│   │   ├── levels/        # Runtime JSON campaign and level definitions
 │   │   ├── scenes/        # Menu and alpha level scenes
 │   │   ├── config.ts      # Phaser game configuration
 │   │   ├── constants.ts   # Runtime values mirrored from HLD cards and levels
@@ -80,6 +83,7 @@ npm run build
 
 - Do not change files under `docs/` unless explicitly asked.
 - Keep runtime constants aligned with the corresponding HLD cards.
+- Keep runtime level JSON files under `src/game/levels/`; regenerate them from `docs/hld/levels/` only when explicitly requested.
 - Add focused tests for gameplay logic that can run outside the browser.
 - Use placeholder art when final sprites are unavailable, but keep each entity visually distinct.
 - Update `state.md` after project actions so the next agent can recover context.

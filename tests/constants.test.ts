@@ -10,7 +10,10 @@ import {
   FLOOR_HEIGHT,
   GAMEPLAY_STATES,
   GAME_TITLE,
+  isEnemyType,
+  KNOWN_ENEMY_TYPES,
   LEVEL_WIDTH,
+  normalizeLevelDefinition,
   PISTOL_CARD,
   PLAYER_CARD,
   PLAYER_MOVEMENT,
@@ -67,6 +70,53 @@ describe("game constants", () => {
       "alpha 1",
       "alpha 2"
     ]);
+  });
+
+  it("only allows known enemy types in runtime level definitions", () => {
+    expect(KNOWN_ENEMY_TYPES).toEqual(["common", "spitter"]);
+    expect(isEnemyType("common")).toBe(true);
+    expect(isEnemyType("spitter")).toBe(true);
+    expect(isEnemyType("unknown")).toBe(false);
+  });
+
+  it("normalizes json level field names for runtime use", () => {
+    expect(
+      normalizeLevelDefinition("test_1", {
+        name: "test 1",
+        player_spawn_location: 25,
+        enemies: [
+          {
+            type: "common",
+            spawn_location: 125
+          }
+        ]
+      })
+    ).toEqual({
+      key: "test_1",
+      name: "test 1",
+      playerSpawnLocation: 25,
+      enemies: [
+        {
+          type: "common",
+          spawnLocation: 125
+        }
+      ]
+    });
+  });
+
+  it("rejects unknown enemy types in json level definitions", () => {
+    expect(() =>
+      normalizeLevelDefinition("bad_1", {
+        name: "bad 1",
+        player_spawn_location: 25,
+        enemies: [
+          {
+            type: "unknown",
+            spawn_location: 125
+          }
+        ]
+      })
+    ).toThrow(/unknown enemy type/i);
   });
 
   it("defines the alpha level enemy layout", () => {

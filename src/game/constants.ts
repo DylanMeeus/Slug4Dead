@@ -1,3 +1,6 @@
+import alpha1Level from "./levels/alpha/alpha_1.json";
+import alpha2Level from "./levels/alpha/alpha_2.json";
+
 export const GAME_TITLE = "Slug4Dead";
 
 export const LEVEL_WIDTH = 2000;
@@ -81,37 +84,55 @@ export type CampaignDefinition = {
   levels: LevelDefinition[];
 };
 
-const ALPHA_LEVEL_ENEMIES: LevelEnemyDefinition[] = [
-  {
-    type: "common",
-    spawnLocation: 500
-  },
-  {
-    type: "common",
-    spawnLocation: 1000
-  },
-  {
-    type: "spitter",
-    spawnLocation: 1500
-  }
-];
+type RawLevelEnemyDefinition = {
+  type: string;
+  spawn_location: number;
+};
+
+type RawLevelDefinition = {
+  name: string;
+  player_spawn_location: number;
+  enemies: RawLevelEnemyDefinition[];
+};
+
+export const KNOWN_ENEMY_TYPES = [
+  COMMON_INFECTED_STATS.name,
+  SPITTER_INFECTED_STATS.name
+] as const;
+
+export function isEnemyType(enemyType: string): enemyType is EnemyType {
+  return KNOWN_ENEMY_TYPES.some((knownType) => knownType === enemyType);
+}
+
+export function normalizeLevelDefinition(
+  key: string,
+  rawLevel: RawLevelDefinition
+): LevelDefinition {
+  return {
+    key,
+    name: rawLevel.name,
+    playerSpawnLocation: rawLevel.player_spawn_location,
+    enemies: rawLevel.enemies.map((enemy) => {
+      if (!isEnemyType(enemy.type)) {
+        throw new Error(
+          `Level "${rawLevel.name}" references unknown enemy type "${enemy.type}".`
+        );
+      }
+
+      return {
+        type: enemy.type,
+        spawnLocation: enemy.spawn_location
+      };
+    })
+  };
+}
 
 export const ALPHA_CAMPAIGN: CampaignDefinition = {
   key: "alpha",
   label: "alpha",
   levels: [
-    {
-      key: "alpha_1",
-      name: "alpha 1",
-      playerSpawnLocation: 50,
-      enemies: ALPHA_LEVEL_ENEMIES
-    },
-    {
-      key: "alpha_2",
-      name: "alpha 2",
-      playerSpawnLocation: 50,
-      enemies: ALPHA_LEVEL_ENEMIES
-    }
+    normalizeLevelDefinition("alpha_1", alpha1Level),
+    normalizeLevelDefinition("alpha_2", alpha2Level)
   ]
 };
 

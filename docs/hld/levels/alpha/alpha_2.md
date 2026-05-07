@@ -6,11 +6,11 @@
     player_spawn_location: 50,
     enemies: [
         {
-            type: common,
+            type: spitter,
             spawn_location: 500,
         },
         {
-            type: common,
+            type: spitter,
             spawn_location: 1000,
         },
         {

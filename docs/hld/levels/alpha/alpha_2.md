@@ -2,6 +2,7 @@
 
 ```
 {
+    name: "alpha 2",
     player_spawn_location: 50,
     enemies: [
         {

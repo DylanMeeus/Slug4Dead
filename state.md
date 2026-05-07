@@ -187,3 +187,41 @@
 - Ran `npm run build`; the production build completed successfully with the new spitter enemy and enemy projectile path.
 - Completed HLD-aligned requirements: common infected card parity, spitter infected implementation, spitter projectile behavior, and updated alpha level enemy spawns.
 - Current product state: enemy entities and alpha level spawning match the current HLD, with only the existing non-blocking Phaser bundle-size warning remaining.
+
+### 05/05/2026 22:52
+- Started a full repository context pass at the user's request, including project instructions, state history, HLD documents, source files, tests, and README.
+- Current product state: no gameplay or documentation changes have been made during this pass beyond this required state log entry.
+
+### 05/05/2026 22:52
+- Completed the full repository context pass and summarized the current project shape for the user.
+- Read the HLD docs, runtime constants, scenes, entity implementations, tests, README, package metadata, TypeScript config, HTML entrypoint, stylesheet, gitignore, and package lock metadata.
+- Noted a documentation inconsistency for future cleanup: `README.md` still says the alpha scene only instantiates common infected enemies, but `src/game/scenes/AlphaLevelScene.ts` now creates spitter enemies from the alpha level definition.
+- Current product state: no source or docs changes were made during this pass beyond the required state log entries.
+
+### 05/06/2026 20:37
+- Started a codebase and docs discrepancy review at the user's request.
+- Confirmed the review will read files under `docs/` but will not modify them, and will not run git commands because the project instructions prohibit git actions.
+- Current product state: no source, docs, or test changes have been made during this review beyond this required state log entry.
+
+### 05/06/2026 20:39
+- Completed the requested codebase and docs discrepancy review.
+- Read all files currently under `docs/`, plus the gameplay source files, tests, README, package metadata, HTML entrypoint, and stylesheet.
+- Identified current discrepancies: campaign/ordered alpha level loading is not implemented, `level_completed` and victory recap/campaign win states are not implemented, dead/pause overlays do not provide the documented restart/resume/quit button flows, README has a stale note claiming the alpha scene only instantiates common infected, deployment infrastructure from the HLD is not present yet, and several docs have internal wording/schema inconsistencies.
+- Confirmed aligned areas: core TypeScript/Phaser/Vite scaffold, player/pistol/common/spitter card values, alpha enemy spawn positions, shooting damage/removal behavior, keybindings, crosshair aiming, safe-zone collision, and placeholder art approach.
+- Current product state: no source, docs, or test changes were made during this review beyond the required state log entries.
+
+### 05/06/2026 20:43
+- Started the approved HLD alignment implementation pass.
+- Planned changes: add ordered alpha campaign level definitions, support campaign progression through alpha 1 and alpha 2, add `level_completed`, implement victory/campaign win and pause/dead button flows, track victory stats, update tests, and refresh the README.
+- Current product state: implementation is in progress; no files under `docs/` will be modified.
+
+### 05/06/2026 20:49
+- Completed the approved HLD alignment implementation pass.
+- Added ordered alpha campaign data with `alpha 1` and `alpha 2`, both using the documented player spawn and enemy spawn definitions.
+- Updated the menu to start the `alpha` campaign and updated the alpha scene to load the selected campaign level, track shots fired, enemies killed, and elapsed level time.
+- Added the `level_completed` gameplay state, pause overlay with resume/quit buttons, dead overlay with restart/quit buttons, level victory recap, next-level continuation, and campaign win return-to-menu flow.
+- Refreshed `README.md` so it reflects the current spitter instantiation, alpha campaign progression, victory recap, and pause/death controls.
+- Ran `npm test`; all 3 test files passed with 15 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser bundle-size warning.
+- Completed HLD-aligned requirements: ordered alpha campaign loading, level completion state, victory recap/campaign win flow, and documented dead/pause button flows.
+- Current product state: code, tests, and README are aligned with the current HLD documents for the implemented alpha campaign slice; files under `docs/` were not modified.

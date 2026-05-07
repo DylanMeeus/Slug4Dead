@@ -6,7 +6,7 @@ The design source of truth lives under `docs/hld/`. Implementation should stay a
 
 ## Current Playable Slice
 
-The game currently starts at a pre-level menu and launches the Alpha Test Ground. The alpha level is a flat 2000 pixel test area with a player spawn, common infected enemies, pistol shooting, health and damage handling, bullet travel, a HUD, pause/death states, and a safe zone at the far end.
+The game currently starts at a pre-level menu and launches the `alpha` campaign. The campaign contains `alpha 1` and `alpha 2`; each level is a flat 2000 pixel test area with a player spawn, common infected enemies, a spitter infected enemy, pistol shooting, health and damage handling, bullet travel, a HUD, pause/death states, victory flow, and a safe zone at the far end.
 
 Controls:
 
@@ -14,7 +14,9 @@ Controls:
 - `D`: move right
 - `Space`: jump
 - `Mouse 1`: fire pistol
-- `Esc`: pause, resume, or return to menu when dead or when the safe zone is reached
+- `Esc`: pause or resume
+
+When paused, the overlay offers resume and quit actions. When dead, the overlay offers restart and quit actions. Reaching the safe zone shows a victory recap with shots fired, enemies killed, and level time; if another alpha level remains, the continue button loads it, otherwise the campaign win screen returns to the main menu.
 
 Placeholder art is used for now. Entities are rendered with simple colored shapes so gameplay behavior can be developed before final sprites exist.
 
@@ -63,7 +65,7 @@ npm run build
 │   │   ├── entities/      # Player, enemies, bullets, weapons, projectiles
 │   │   ├── scenes/        # Menu and alpha level scenes
 │   │   ├── config.ts      # Phaser game configuration
-│   │   ├── constants.ts   # Runtime values mirrored from HLD cards
+│   │   ├── constants.ts   # Runtime values mirrored from HLD cards and levels
 │   │   └── trajectory.ts  # Shared projectile math
 │   ├── main.ts            # Browser entrypoint
 │   └── styles.css         # Page and canvas layout
@@ -84,6 +86,5 @@ npm run build
 
 ## Known Implementation Notes
 
-- The alpha HLD includes a spitter enemy at `spawn_location: 1500`.
-- Spitter and enemy projectile entity files exist, but the current alpha scene only instantiates common infected enemies.
+- The alpha HLD includes a spitter enemy at `spawn_location: 1500`; the alpha scene instantiates it for both current alpha levels.
 - Production builds currently pass, with a non-blocking Phaser bundle-size warning noted in the state log.

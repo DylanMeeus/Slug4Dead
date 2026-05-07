@@ -10,14 +10,17 @@ import { SpitterInfected } from "../entities/SpitterInfected";
 import { resolveVelocityVector } from "../trajectory";
 import {
   ALPHA_LEVEL,
+  CAMPAIGNS,
   CROSSHAIR,
   COMMON_INFECTED_MOVEMENT,
   COMMON_INFECTED_STATS,
   FLOOR_HEIGHT,
+  type CampaignDefinition,
   type GameplayState,
   GAMEPLAY_STATES,
   LEVEL_HEIGHT,
   LEVEL_WIDTH,
+  type LevelDefinition,
   PISTOL_CARD,
   PLAYER_CARD,
   PLAYER_MOVEMENT,
@@ -28,34 +31,57 @@ import {
   SPITTER_INFECTED_STATS
 } from "../constants";
 
+type AlphaLevelStartData = {
+  campaignKey?: string;
+  levelIndex?: number;
+};
+
 export class AlphaLevelScene extends Phaser.Scene {
   public static readonly key = SCENE_KEYS.alphaLevel;
 
   private gameplayState: GameplayState = GAMEPLAY_STATES.alive;
+  private currentCampaign: CampaignDefinition = CAMPAIGNS[0];
+  private currentLevel: LevelDefinition = ALPHA_LEVEL;
+  private currentLevelIndex = 0;
   private player?: Player;
   private stateText?: Phaser.GameObjects.Text;
   private floor?: Phaser.GameObjects.Rectangle;
   private safeZone?: Phaser.GameObjects.Rectangle;
   private crosshair?: Phaser.GameObjects.Graphics;
+  private readonly overlayObjects: Phaser.GameObjects.GameObject[] = [];
   private readonly enemies: DamageableEnemy[] = [];
   private readonly bullets: Bullet[] = [];
   private readonly enemyProjectiles: EnemyProjectile[] = [];
   private pistol = new Pistol();
   private lastDamageTimeMs = -PLAYER_MOVEMENT.damageCooldownMs;
-  private levelComplete = false;
+  private shotsFired = 0;
+  private enemiesKilled = 0;
+  private levelStartedAtMs = 0;
 
   public constructor() {
     super(AlphaLevelScene.key);
   }
 
-  public create(): void {
+  public create(data: AlphaLevelStartData = {}): void {
+    this.currentCampaign =
+      CAMPAIGNS.find((campaign) => campaign.key === data.campaignKey) ??
+      CAMPAIGNS[0];
+    this.currentLevelIndex = Phaser.Math.Clamp(
+      data.levelIndex ?? 0,
+      0,
+      this.currentCampaign.levels.length - 1
+    );
+    this.currentLevel = this.currentCampaign.levels[this.currentLevelIndex];
     this.gameplayState = GAMEPLAY_STATES.alive;
     this.pistol = new Pistol();
     this.enemies.length = 0;
     this.bullets.length = 0;
     this.enemyProjectiles.length = 0;
+    this.clearOverlay();
     this.lastDamageTimeMs = -PLAYER_MOVEMENT.damageCooldownMs;
-    this.levelComplete = false;
+    this.shotsFired = 0;
+    this.enemiesKilled = 0;
+    this.levelStartedAtMs = this.time.now;
 
     this.cameras.main.setBackgroundColor("#6c8fb0");
     this.physics.world.setBounds(0, 0, LEVEL_WIDTH, LEVEL_HEIGHT);
@@ -90,7 +116,11 @@ export class AlphaLevelScene extends Phaser.Scene {
     this.physics.add.existing(this.safeZone, true);
 
     const playerStartY = LEVEL_HEIGHT - FLOOR_HEIGHT - PLAYER_SIZE.height / 2;
-    this.player = new Player(this, ALPHA_LEVEL.playerSpawnLocation, playerStartY);
+    this.player = new Player(
+      this,
+      this.currentLevel.playerSpawnLocation,
+      playerStartY
+    );
     this.player.setTint(0xf6f1d1);
 
     this.physics.add.collider(this.player, this.floor);
@@ -98,7 +128,7 @@ export class AlphaLevelScene extends Phaser.Scene {
       this.handleSafeZoneReached();
     });
 
-    for (const enemyDefinition of ALPHA_LEVEL.enemies) {
+    for (const enemyDefinition of this.currentLevel.enemies) {
       const enemy = this.createEnemy(
         enemyDefinition.type,
         enemyDefinition.spawnLocation
@@ -135,31 +165,30 @@ export class AlphaLevelScene extends Phaser.Scene {
         return;
       }
 
+      this.shotsFired += 1;
       this.fireBullet(pointer.worldX, pointer.worldY);
       this.stateText?.setText(this.getHudText());
     });
 
     this.input.keyboard!.on("keydown-ESC", () => {
       if (this.gameplayState === GAMEPLAY_STATES.dead) {
-        this.input.setDefaultCursor("default");
-        this.scene.start(SCENE_KEYS.menu);
         return;
       }
 
-      if (this.levelComplete) {
-        this.input.setDefaultCursor("default");
-        this.scene.start(SCENE_KEYS.menu);
+      if (this.gameplayState === GAMEPLAY_STATES.levelCompleted) {
         return;
       }
 
       if (this.gameplayState === GAMEPLAY_STATES.paused) {
         this.physics.resume();
+        this.clearOverlay();
         this.setGameplayState(GAMEPLAY_STATES.alive);
         return;
       }
 
       this.physics.pause();
       this.setGameplayState(GAMEPLAY_STATES.paused);
+      this.showPauseOverlay();
     });
   }
 
@@ -191,6 +220,8 @@ export class AlphaLevelScene extends Phaser.Scene {
       this.player.setTint(0xc94f4f);
       this.player.setVelocity(0, 0);
       this.physics.pause();
+      this.input.setDefaultCursor("default");
+      this.showDeadOverlay();
     }
 
     if (nextState === GAMEPLAY_STATES.paused) {
@@ -208,6 +239,7 @@ export class AlphaLevelScene extends Phaser.Scene {
       reloadMs > 0 ? `Reloading: ${reloadMs}ms` : "Reloading: ready";
 
     return [
+      `Level: ${this.currentLevel.name}`,
       `State: ${this.gameplayState}`,
       `Player: ${this.player?.getHealth() ?? PLAYER_CARD.health}hp / velocity ${PLAYER_CARD.velocity}`,
       `Pistol: ${this.pistol.getAmmo()}/${PISTOL_CARD.magSize} / fire rate ${PISTOL_CARD.fireRatePerSecond}/s`,
@@ -215,8 +247,9 @@ export class AlphaLevelScene extends Phaser.Scene {
       `Common infected: ${COMMON_INFECTED_STATS.health}hp / ${COMMON_INFECTED_STATS.damage} damage / velocity ${COMMON_INFECTED_MOVEMENT.speedPixelsPerSecond}px/s`,
       `Spitter: ${SPITTER_INFECTED_STATS.health}hp / ${SPITTER_INFECTED_STATS.damage} damage / projectile ${SPITTER_INFECTED_PROJECTILE.velocity}px/s`,
       `Alpha enemies: ${this.enemies.length}`,
+      `Shots: ${this.shotsFired} / Kills: ${this.enemiesKilled}`,
       "Controls: A / D / Space / Mouse 1 / Esc",
-      "Esc: pause, resume, or return to menu when dead"
+      "Esc: pause or resume"
     ].join("\n");
   }
 
@@ -294,6 +327,7 @@ export class AlphaLevelScene extends Phaser.Scene {
       if (index >= 0) {
         this.enemies.splice(index, 1);
       }
+      this.enemiesKilled += 1;
     }
   }
 
@@ -353,13 +387,10 @@ export class AlphaLevelScene extends Phaser.Scene {
       return;
     }
 
-    this.levelComplete = true;
     this.physics.pause();
     this.input.setDefaultCursor("default");
-    this.stateText?.setText(
-      `${this.getHudText()}\nSafe zone reached. Press Esc to return to menu.`
-    );
-    this.gameplayState = GAMEPLAY_STATES.paused;
+    this.setGameplayState(GAMEPLAY_STATES.levelCompleted);
+    this.showVictoryOverlay();
   }
 
   private removeBulletReference(bullet: Bullet): void {
@@ -370,7 +401,7 @@ export class AlphaLevelScene extends Phaser.Scene {
   }
 
   private createEnemy(
-    enemyType: (typeof ALPHA_LEVEL.enemies)[number]["type"],
+    enemyType: LevelDefinition["enemies"][number]["type"],
     spawnLocation: number
   ): DamageableEnemy {
     const spawnY = LEVEL_HEIGHT - FLOOR_HEIGHT - 20;
@@ -425,5 +456,131 @@ export class AlphaLevelScene extends Phaser.Scene {
     if (remainingHealth <= 0) {
       this.setGameplayState(GAMEPLAY_STATES.dead);
     }
+  }
+
+  private getElapsedSeconds(): number {
+    return Math.max(
+      0,
+      Math.floor((this.time.now - this.levelStartedAtMs) / 1000)
+    );
+  }
+
+  private showPauseOverlay(): void {
+    this.clearOverlay();
+    this.addOverlayTitle("Paused", "Resume or quit the current level.");
+    this.addOverlayButton("Resume", LEVEL_HEIGHT / 2 + 18, () => {
+      this.physics.resume();
+      this.clearOverlay();
+      this.setGameplayState(GAMEPLAY_STATES.alive);
+    });
+    this.addOverlayButton("Quit", LEVEL_HEIGHT / 2 + 72, () => {
+      this.input.setDefaultCursor("default");
+      this.scene.start(SCENE_KEYS.menu);
+    });
+  }
+
+  private showDeadOverlay(): void {
+    this.clearOverlay();
+    this.addOverlayTitle("Game Over", "Restart the level or quit.");
+    this.addOverlayButton("Restart Level", LEVEL_HEIGHT / 2 + 18, () => {
+      this.restartCurrentLevel();
+    });
+    this.addOverlayButton("Quit", LEVEL_HEIGHT / 2 + 72, () => {
+      this.input.setDefaultCursor("default");
+      this.scene.start(SCENE_KEYS.menu);
+    });
+  }
+
+  private showVictoryOverlay(): void {
+    this.clearOverlay();
+    const nextLevel = this.currentCampaign.levels[this.currentLevelIndex + 1];
+    const title = nextLevel ? "Level Complete" : "Campaign Win";
+    const actionLabel = nextLevel ? "Continue" : "Main Menu";
+
+    this.addOverlayTitle(
+      title,
+      [
+        `Shots fired: ${this.shotsFired}`,
+        `Enemies killed: ${this.enemiesKilled}`,
+        `Time: ${this.getElapsedSeconds()}s`
+      ].join("\n")
+    );
+    this.addOverlayButton(actionLabel, LEVEL_HEIGHT / 2 + 92, () => {
+      if (!nextLevel) {
+        this.input.setDefaultCursor("default");
+        this.scene.start(SCENE_KEYS.menu);
+        return;
+      }
+
+      this.scene.start(SCENE_KEYS.alphaLevel, {
+        campaignKey: this.currentCampaign.key,
+        levelIndex: this.currentLevelIndex + 1
+      });
+    });
+  }
+
+  private addOverlayTitle(title: string, body: string): void {
+    const screenWidth = this.scale.width;
+    const screenHeight = this.scale.height;
+    const overlay = this.add
+      .rectangle(0, 0, screenWidth, screenHeight, 0x10131a, 0.72)
+      .setOrigin(0)
+      .setScrollFactor(0);
+    const titleText = this.add
+      .text(screenWidth / 2, screenHeight / 2 - 116, title, {
+        fontFamily: "monospace",
+        fontSize: "34px",
+        color: "#f6f1d1",
+        align: "center"
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+    const bodyText = this.add
+      .text(screenWidth / 2, screenHeight / 2 - 48, body, {
+        fontFamily: "monospace",
+        fontSize: "18px",
+        color: "#ffffff",
+        align: "center",
+        lineSpacing: 8
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0);
+
+    this.overlayObjects.push(overlay, titleText, bodyText);
+  }
+
+  private addOverlayButton(
+    label: string,
+    y: number,
+    onClick: () => void
+  ): void {
+    const button = this.add
+      .text(this.scale.width / 2, y, label, {
+        fontFamily: "monospace",
+        fontSize: "22px",
+        color: "#10131a",
+        backgroundColor: "#f6f1d1",
+        padding: { x: 18, y: 10 }
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setInteractive({ useHandCursor: true });
+
+    button.on("pointerdown", onClick);
+    this.overlayObjects.push(button);
+  }
+
+  private clearOverlay(): void {
+    for (const object of this.overlayObjects) {
+      object.destroy();
+    }
+    this.overlayObjects.length = 0;
+  }
+
+  private restartCurrentLevel(): void {
+    this.scene.start(SCENE_KEYS.alphaLevel, {
+      campaignKey: this.currentCampaign.key,
+      levelIndex: this.currentLevelIndex
+    });
   }
 }

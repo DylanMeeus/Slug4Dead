@@ -1,4 +1,4 @@
-## Project Layout
+ Project Layout
 
 The games files can be found under docs/. The `hld/main.md` defines the core technical decisions of the
 game. You are to keep track of which files have been created and/or changes since you last worked on
@@ -9,10 +9,11 @@ You should _not_ touch any files under the `docs/` folder unless given explicit 
 
 
 ## How to code
-1. Always update state.md whenever you take an action. This will be your running log of all actions
+1. Always update state.md whenever you take an action that modifies codebase codeabse. This will be your running log of all actions
 that you have taken and the current state of the product. When we start a new coding agent, we
 should be able to rebuild all your context to start on the project based on this. Add both a date
-and time to the entry (up mm/dd/yyyy hh:mm format)
+and time to the entry (up mm/dd/yyyy hh:mm format). You do NOT have to log state entries when you
+take actions such as reading files etc. Only _modifications to the codebase_ should be logged.
 
 2. Always ask for permission before destructive actions (e.g, git delete, delete file, ..)
 
@@ -32,7 +33,10 @@ and time to the entry (up mm/dd/yyyy hh:mm format)
    the state file. If the behaviour of the bug is uncleark, ask instructions.
 
 10. Files called `definitions.md` define the meaning of the json fields you'll find in the
-    respective files in that folder
+    respective files in that folder or in child folders. This follows a hierarchical/inheritance
+    structure. So for example, a file under `a/definitions.md` will also apply to `a/b/file.md`. But
+    a `definitions.md` file lower in the file structure will override the parent if a definitions
+    appears in both. 
 
 ## Working with art
 

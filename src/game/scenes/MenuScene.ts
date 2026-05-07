@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-import { ALPHA_LEVEL, GAMEPLAY_STATES, GAME_TITLE, SCENE_KEYS } from "../constants";
+import { ALPHA_CAMPAIGN, GAMEPLAY_STATES, GAME_TITLE, SCENE_KEYS } from "../constants";
 
 export class MenuScene extends Phaser.Scene {
   public static readonly key = SCENE_KEYS.menu;
@@ -30,8 +30,8 @@ export class MenuScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    const alphaLevelText = this.add
-      .text(width / 2, height / 2 + 40, `Play ${ALPHA_LEVEL.label}`, {
+    const alphaCampaignText = this.add
+      .text(width / 2, height / 2 + 40, `Play ${ALPHA_CAMPAIGN.label}`, {
         fontFamily: "monospace",
         fontSize: "28px",
         color: "#ffffff",
@@ -49,8 +49,11 @@ export class MenuScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    alphaLevelText.on("pointerdown", () => {
-      this.scene.start(SCENE_KEYS.alphaLevel);
+    alphaCampaignText.on("pointerdown", () => {
+      this.scene.start(SCENE_KEYS.alphaLevel, {
+        campaignKey: ALPHA_CAMPAIGN.key,
+        levelIndex: 0
+      });
     });
   }
 }

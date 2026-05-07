@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ALPHA_CAMPAIGN,
   ALPHA_LEVEL,
+  CAMPAIGNS,
   COMMON_INFECTED_MOVEMENT,
   COMMON_INFECTED_STATS,
   CROSSHAIR,
@@ -54,11 +56,21 @@ describe("game constants", () => {
     expect(GAMEPLAY_STATES.preLevel).toBe("pre-level");
     expect(GAMEPLAY_STATES.alive).toBe("alive");
     expect(GAMEPLAY_STATES.dead).toBe("dead");
+    expect(GAMEPLAY_STATES.levelCompleted).toBe("level_completed");
     expect(GAMEPLAY_STATES.paused).toBe("paused");
   });
 
-  it("defines the alpha level label", () => {
-    expect(ALPHA_LEVEL.label).toContain("Alpha");
+  it("defines the ordered alpha campaign levels", () => {
+    expect(CAMPAIGNS).toEqual([ALPHA_CAMPAIGN]);
+    expect(ALPHA_CAMPAIGN.key).toBe("alpha");
+    expect(ALPHA_CAMPAIGN.levels.map((level) => level.name)).toEqual([
+      "alpha 1",
+      "alpha 2"
+    ]);
+  });
+
+  it("defines the alpha level enemy layout", () => {
+    expect(ALPHA_LEVEL.name).toBe("alpha 1");
     expect(ALPHA_LEVEL.playerSpawnLocation).toBe(50);
     expect(ALPHA_LEVEL.enemies).toEqual([
       {

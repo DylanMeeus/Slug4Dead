@@ -21,6 +21,16 @@ export const PLAYER_DISPLAY_SIZE = {
   height: 96
 } as const;
 
+export type HorizontalFacingDirection = "left" | "right";
+
+export const PLAYER_SPRITESHEET_DEFAULT_FACING: Record<
+  SpritesheetSurvivorName,
+  HorizontalFacingDirection
+> = {
+  Bill: "right",
+  Zoey: "left"
+} as const;
+
 export const PLAYER_CARD = {
   health: 100,
   velocity: 200

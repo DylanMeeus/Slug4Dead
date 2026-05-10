@@ -7,8 +7,10 @@ import {
   PLAYER_CARD,
   PLAYER_DISPLAY_SIZE,
   PLAYER_MOVEMENT,
+  PLAYER_SPRITESHEET_DEFAULT_FACING,
   PLAYER_SIZE,
   PLAYER_SPRITESHEETS,
+  type HorizontalFacingDirection,
   type SpritesheetSurvivorName,
   type SurvivorName
 } from "../constants";
@@ -27,6 +29,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private healthPoints: number = PLAYER_CARD.health;
   private readonly idleAnimationKey?: string;
   private readonly walkingAnimationKey?: string;
+  private readonly defaultFacingDirection?: HorizontalFacingDirection;
   private readonly movementKeys: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
@@ -67,6 +70,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       Player.ensureAnimations(scene, survivorName);
       this.idleAnimationKey = Player.getAnimationKey(survivorName, "idle");
       this.walkingAnimationKey = Player.getAnimationKey(survivorName, "walking");
+      this.defaultFacingDirection =
+        PLAYER_SPRITESHEET_DEFAULT_FACING[survivorName];
       this.play(this.idleAnimationKey);
       this.setDisplaySize(PLAYER_DISPLAY_SIZE.width, PLAYER_DISPLAY_SIZE.height);
     } else {
@@ -78,10 +83,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setBounce(0);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
-    body.setSize(PLAYER_SIZE.width, PLAYER_SIZE.height);
+    const bodySourceWidth = PLAYER_SIZE.width / this.scaleX;
+    const bodySourceHeight = PLAYER_SIZE.height / this.scaleY;
+    body.setSize(bodySourceWidth, bodySourceHeight);
     body.setOffset(
-      (this.width - PLAYER_SIZE.width) / 2,
-      this.height - PLAYER_SIZE.height
+      (this.width - bodySourceWidth) / 2,
+      this.height - bodySourceHeight
     );
 
     this.movementKeys = scene.input.keyboard!.addKeys({
@@ -101,11 +108,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     if (this.movementKeys.left.isDown) {
       this.setVelocityX(-PLAYER_CARD.velocity);
-      this.setFlipX(false);
+      this.faceDirection("left");
       isWalking = true;
     } else if (this.movementKeys.right.isDown) {
       this.setVelocityX(PLAYER_CARD.velocity);
-      this.setFlipX(true);
+      this.faceDirection("right");
       isWalking = true;
     } else {
       this.setVelocityX(0);
@@ -140,6 +147,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.play(nextAnimationKey, true);
+  }
+
+  private faceDirection(direction: HorizontalFacingDirection): void {
+    if (!this.defaultFacingDirection) {
+      this.setFlipX(direction === "left");
+      return;
+    }
+
+    this.setFlipX(direction !== this.defaultFacingDirection);
   }
 
   private static ensurePlaceholderTexture(scene: Phaser.Scene): void {

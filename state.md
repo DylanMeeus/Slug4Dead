@@ -333,3 +333,24 @@
 - Ran `npm test`; all 3 test files passed with 21 tests.
 - Ran `npm run build`; the production build passed and emitted the updated bundled spitter sprite sheet, with the existing non-blocking Phaser chunk-size warning remaining.
 - Current product state: spitter sprite bottom alignment is corrected at the asset level instead of using a runtime Y-offset.
+## 05/09/2026 20:36
+
+- Fixed Bill's runtime facing by adding per-survivor spritesheet default-facing metadata and using it when flipping left/right movement. Bill and Zoey generated sheets are both treated as left-facing without editing files under `docs/`.
+- Fixed scaled player sprites falling through or misaligning with the floor by sizing the Arcade physics body in source-frame units so the displayed collider remains `28x44` at the character's feet.
+- Updated constants tests to cover player body sizing and spritesheet default-facing metadata.
+- Verified with `npm test` and `npm run build`.
+
+## 05/09/2026 20:39
+
+- Corrected Bill's runtime default-facing metadata from `left` to `right` after playtesting showed his generated frames face right despite the sprite JSON note. Runtime movement now flips Bill only when moving left.
+- Left Bill's spawn/floor positioning unchanged because another agent is handling that issue.
+- Verified the facing-only correction with `npm test` and `npm run build`.
+
+## 05/09/2026 20:42
+
+- Corrected bottom transparent padding in `docs/art/players/bill/bill-spritesheet.png` and `docs/art/players/zoey/zoey-spritesheet.png` after confirming Bill frames had `30-63px` and Zoey frames had `5-74px` of transparent source pixels below the visible sprite bottom.
+- Shifted each frame's non-transparent pixels downward inside the existing `256x384` cells so every Bill and Zoey frame now has `0px` bottom padding.
+- Kept both player sprite sheet dimensions and their JSON metadata unchanged.
+- Ran `npm run build`; the production build passed and emitted the updated Bill and Zoey sprite sheet assets, with the existing non-blocking Phaser chunk-size warning remaining.
+- Ran `npm test`; all 3 test files passed with 22 tests.
+- Current product state: Bill and Zoey sprite bottom alignment is corrected at the asset level, matching the prior spitter padding fix approach.

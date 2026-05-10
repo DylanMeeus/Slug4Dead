@@ -18,6 +18,8 @@ import {
   PLAYER_CARD,
   PLAYER_DISPLAY_SIZE,
   PLAYER_MOVEMENT,
+  PLAYER_SIZE,
+  PLAYER_SPRITESHEET_DEFAULT_FACING,
   PLAYER_SPRITESHEETS,
   SPITTER_DISPLAY_SIZE,
   SPITTER_INFECTED_PROJECTILE,
@@ -64,6 +66,14 @@ describe("game constants", () => {
     expect(PLAYER_DISPLAY_SIZE).toEqual({
       width: 64,
       height: 96
+    });
+    expect(PLAYER_SIZE).toEqual({
+      width: 28,
+      height: 44
+    });
+    expect(PLAYER_SPRITESHEET_DEFAULT_FACING).toEqual({
+      Bill: "right",
+      Zoey: "left"
     });
     expect(PLAYER_SPRITESHEETS.Bill.animations.idle).toMatchObject({
       startFrame: 0,

@@ -227,6 +227,39 @@
 - Current product state: code, tests, and README are aligned with the current HLD documents for the implemented alpha campaign slice; files under `docs/` were not modified.
 
 ### 05/06/2026 21:00
+
+### 05/09/2026 21:00
+- Read `docs/hld/systems/debug_mode.md` and confirmed the debug-mode requirements: launch via `npm run debug` and run gameplay at `0.25x` speed.
+- Added a typed debug-mode speed helper, wired `npm run debug` to Vite's `debug` mode, and applied the resolved game speed to Arcade physics, scene time, and animation timing.
+- Added focused debug-mode tests covering normal mode speed and debug mode quarter-speed behavior.
+- Completed HLD-aligned requirement: the game can now be launched in debug mode and runs at `0.25x` speed when launched with `npm run debug`.
+- Current product state: debug mode is implemented and ready for test/build verification.
+
+### 05/09/2026 21:02
+- Removed the brittle alpha-level enemy composition assertion from `tests/constants.test.ts` because level enemy contents are expected to change frequently.
+- Kept stable alpha entry-point coverage for the first level name and player spawn location.
+- Current product state: debug-mode implementation is unchanged; test coverage no longer hardcodes alpha enemy contents.
+
+### 05/09/2026 21:04
+- Fixed debug-mode Arcade physics scaling after confirming Phaser's fixed-step `World.timeScale` changes the step interval rather than directly multiplying motion speed.
+- Added `resolveArcadePhysicsTimeScale` so the public debug game speed remains `0.25x` while Arcade physics receives the inverse fixed-step scale of `4`.
+- Added focused test coverage for the Arcade physics time-scale conversion.
+- Current product state: debug mode should now slow physics, timers, and animations together instead of making physics faster.
+
+### 05/09/2026 21:10
+- With user approval to modify `docs/art/players/bill/`, cleaned `docs/art/players/bill/bill-spritesheet.png` by recentering Bill walking frames `9` and `10` inside their fixed 256x384 cells.
+- Corrected `docs/art/players/bill/bill-spritesheet.json` to state that Bill's sprite faces right.
+- Added `tests/playerSpritesheet.test.ts` to guard Bill's walking frames against edge bleed and horizontal anchor drift.
+- Current product state: Bill's walking row now has centered frame bounds and should no longer visually move right and then left within the animation cycle.
+
+### 05/09/2026 21:11
+- Added narrow local Node API declarations for asset tests so the Bill PNG regression test can stay in TypeScript without adding a new dependency to the browser game.
+- Current product state: the Bill walking-frame regression test has local type support for its PNG decoder.
+
+### 05/09/2026 21:20
+- With user approval to modify `docs/art/players/bill/`, cleaned `docs/art/players/bill/bill-spritesheet.png` by recentering Bill idle frames `2` and `3` inside their fixed 256x384 cells.
+- Extended `tests/playerSpritesheet.test.ts` so Bill's idle frames and walking frames are both guarded against horizontal anchor drift and edge bleed.
+- Current product state: Bill's idle row and walking row now have centered frame bounds, avoiding grouped spacing artifacts during animation playback.
 - Created the spitter enemy art asset folder at `docs/art/enemies/spitter`.
 - Generated a 16-bit-style transparent spitter sprite sheet with two animation states: idle and spitting.
 - Added `docs/art/enemies/spitter/spitter-spritesheet.png` as a fixed 7-column by 2-row sprite sheet and `docs/art/enemies/spitter/spitter-spritesheet.json` to document frame dimensions and animation ranges.
@@ -354,3 +387,32 @@
 - Ran `npm run build`; the production build passed and emitted the updated Bill and Zoey sprite sheet assets, with the existing non-blocking Phaser chunk-size warning remaining.
 - Ran `npm test`; all 3 test files passed with 22 tests.
 - Current product state: Bill and Zoey sprite bottom alignment is corrected at the asset level, matching the prior spitter padding fix approach.
+
+## 05/09/2026 20:48
+
+- Started the approved fix for Bill and Zoey walking animations appearing to skip some generated frames in-game.
+- Added `src/game/animationFrames.ts` with an explicit inclusive frame-sequence helper so spritesheet animation playback can pass Phaser a concrete frame list instead of relying only on `startFrame` and `endFrame`.
+- Updated `Player` animation creation to use explicit frame sequences for both idle and walking animations.
+- Added focused animation-frame tests covering inclusive frame generation and confirming Bill and Zoey walking animations use frames `7-13`.
+- Ran `npm test`; all 4 test files passed with 25 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: player animation frame selection is explicit, test-covered, and verified.
+
+## 05/09/2026 20:51
+
+- Started the approved runtime debugging pass after the user reported Bill still stutters and Zoey appears stuck on one walking frame despite the configured frame sequence including `7-13`.
+- Added `Player.getAnimationDebugText()` to expose the live Phaser animation key, texture frame number, sequence frame index, and playing/stopped state.
+- Added an `Anim:` line to the in-game HUD so walking Bill and Zoey can be checked against Phaser's live animation state in the browser.
+- Ran `npm test`; all 4 test files passed with 25 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: runtime animation instrumentation is in place and verified.
+
+## 05/09/2026 20:54
+
+- Started the approved Bill spritesheet alignment fix after the user observed Bill moving back and forth while idling.
+- Measured Bill's idle visible bounding-box centers before the fix at `114.5-184px` within each `256px` frame cell, confirming inconsistent horizontal frame placement.
+- Updated `docs/art/players/bill/bill-spritesheet.png` by shifting non-transparent pixels horizontally within each existing `256x384` frame so Bill's visible bounding-box center is now consistently `127-128px` across idle and walking frames.
+- Preserved the existing sheet dimensions, frame dimensions, JSON metadata, and `0px` bottom padding.
+- Ran `npm test`; all 4 test files passed with 25 tests.
+- Ran `npm run build`; the production build passed and emitted the updated Bill sprite sheet asset, with the existing non-blocking Phaser chunk-size warning remaining.
+- Current product state: Bill's frame-origin alignment is corrected at the asset level and verified.

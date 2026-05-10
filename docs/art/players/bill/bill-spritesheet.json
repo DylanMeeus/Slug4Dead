@@ -21,7 +21,7 @@
     }
   },
   "notes": [
-    "Sprite faces left.",
+    "Sprite faces right.",
     "The sheet uses a fixed 7x2 grid for Phaser spritesheet loading.",
     "Row 0 contains idle frames; row 1 contains walking frames.",
     "Generated from Bill reference images under docs/art/reference/players/bill."

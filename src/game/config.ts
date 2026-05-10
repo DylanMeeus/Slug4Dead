@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 import { LEVEL_HEIGHT, LEVEL_WIDTH } from "./constants";
+import { ARCADE_PHYSICS_TIME_SCALE } from "./debugMode";
 import { AlphaLevelScene } from "./scenes/AlphaLevelScene";
 import { MenuScene } from "./scenes/MenuScene";
 
@@ -14,6 +15,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     default: "arcade",
     arcade: {
       gravity: { y: 900, x: 0 },
+      timeScale: ARCADE_PHYSICS_TIME_SCALE,
       debug: false
     }
   },

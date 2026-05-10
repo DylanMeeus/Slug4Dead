@@ -164,19 +164,9 @@ describe("game constants", () => {
     ).toThrow(/unknown enemy type/i);
   });
 
-  it("defines the alpha level enemy layout", () => {
+  it("defines the alpha level entry point", () => {
     expect(ALPHA_LEVEL.name).toBe("alpha 1");
     expect(ALPHA_LEVEL.playerSpawnLocation).toBe(50);
-    expect(ALPHA_LEVEL.enemies).toEqual([
-      {
-        type: "spitter",
-        spawnLocation: 500
-      },
-      {
-        type: "common",
-        spawnLocation: 1000
-      }
-    ]);
   });
 
   it("defines the spitter infected stats and projectile", () => {

@@ -9,6 +9,7 @@ import {
   type CampaignDefinition,
   type SurvivorName
 } from "../constants";
+import { applySceneGameSpeed } from "../debugMode";
 
 export class MenuScene extends Phaser.Scene {
   public static readonly key = SCENE_KEYS.menu;
@@ -18,6 +19,7 @@ export class MenuScene extends Phaser.Scene {
   }
 
   public create(): void {
+    applySceneGameSpeed(this);
     this.renderCampaignSelection();
   }
 

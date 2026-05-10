@@ -34,6 +34,7 @@ import {
   isSurvivorName,
   SURVIVORS
 } from "../constants";
+import { applySceneGameSpeed } from "../debugMode";
 
 type AlphaLevelStartData = {
   campaignKey?: string;
@@ -74,6 +75,8 @@ export class AlphaLevelScene extends Phaser.Scene {
   }
 
   public create(data: AlphaLevelStartData = {}): void {
+    applySceneGameSpeed(this);
+
     this.currentCampaign =
       CAMPAIGNS.find((campaign) => campaign.key === data.campaignKey) ??
       CAMPAIGNS[0];
@@ -264,6 +267,7 @@ export class AlphaLevelScene extends Phaser.Scene {
       `Spitter: ${SPITTER_INFECTED_STATS.health}hp / ${SPITTER_INFECTED_STATS.damage} damage / projectile ${SPITTER_INFECTED_PROJECTILE.velocity}px/s`,
       `Alpha enemies: ${this.enemies.length}`,
       `Shots: ${this.shotsFired} / Kills: ${this.enemiesKilled}`,
+      `Anim: ${this.player?.getAnimationDebugText() ?? "none"}`,
       "Controls: A / D / Space / Mouse 1 / Esc",
       "Esc: pause or resume"
     ].join("\n");

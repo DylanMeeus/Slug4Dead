@@ -2,6 +2,7 @@ import Phaser from "phaser";
 
 import billSpritesheetUrl from "../../../docs/art/players/bill/bill-spritesheet.png";
 import zoeySpritesheetUrl from "../../../docs/art/players/zoey/zoey-spritesheet.png";
+import { buildInclusiveFrameSequence } from "../animationFrames";
 import {
   hasPlayerSpritesheet,
   PLAYER_CARD,
@@ -137,6 +138,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.healthPoints;
   }
 
+  public getAnimationDebugText(): string {
+    const currentAnimationKey = this.anims.currentAnim?.key ?? "none";
+    const currentFrame = this.anims.currentFrame;
+    const textureFrame = currentFrame?.textureFrame ?? "none";
+    const frameIndex = currentFrame?.index ?? "none";
+    const playingState = this.anims.isPlaying ? "playing" : "stopped";
+
+    return `${currentAnimationKey} / texture frame ${textureFrame} / sequence frame ${frameIndex} / ${playingState}`;
+  }
+
   private syncAnimation(isWalking: boolean): void {
     const nextAnimationKey = isWalking
       ? this.walkingAnimationKey
@@ -202,8 +213,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       scene.anims.create({
         key: idleKey,
         frames: scene.anims.generateFrameNumbers(textureKey, {
-          start: idle.startFrame,
-          end: idle.endFrame
+          frames: buildInclusiveFrameSequence(idle)
         }),
         frameRate: idle.frameRate,
         repeat: idle.repeat
@@ -216,8 +226,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       scene.anims.create({
         key: walkingKey,
         frames: scene.anims.generateFrameNumbers(textureKey, {
-          start: walking.startFrame,
-          end: walking.endFrame
+          frames: buildInclusiveFrameSequence(walking)
         }),
         frameRate: walking.frameRate,
         repeat: walking.repeat

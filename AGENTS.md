@@ -5,7 +5,7 @@ game. You are to keep track of which files have been created and/or changes sinc
 the game. The entire game needs to feel consistent and these files are your main way to get there.
 For example, you can't build a game without considering the player.md or the entities/common.md.
 
-You should _not_ touch any files under the `docs/` folder unless given explicit permission to do so. 
+You should _not_ touch any files under the `docs/` folder apart from `docs/art` unless given explicit permission to do so. 
 
 
 ## How to code

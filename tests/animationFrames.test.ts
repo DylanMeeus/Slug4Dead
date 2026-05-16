@@ -22,10 +22,23 @@ describe("animation frame sequences", () => {
     ).toEqual([4, 3, 2, 1]);
   });
 
-  it("uses every generated walking frame for Bill and Zoey", () => {
+  it("uses an explicit frame list when animation metadata provides one", () => {
+    expect(
+      buildInclusiveFrameSequence({
+        startFrame: 7,
+        endFrame: 13,
+        frames: [7, 9, 10, 11, 12, 13]
+      })
+    ).toEqual([7, 9, 10, 11, 12, 13]);
+  });
+
+  it("uses every regenerated walking frame for Bill", () => {
     expect(
       buildInclusiveFrameSequence(PLAYER_SPRITESHEETS.Bill.animations.walking)
     ).toEqual([7, 8, 9, 10, 11, 12, 13]);
+  });
+
+  it("uses every generated walking frame for Zoey", () => {
     expect(
       buildInclusiveFrameSequence(PLAYER_SPRITESHEETS.Zoey.animations.walking)
     ).toEqual([7, 8, 9, 10, 11, 12, 13]);

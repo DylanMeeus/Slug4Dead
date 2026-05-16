@@ -1,0 +1,18 @@
+{
+  "image": "sniper.png",
+  "width": 512,
+  "height": 128,
+  "defaultFacing": "left",
+  "muzzle": {
+    "x": 3,
+    "y": 45
+  },
+  "grip": {
+    "x": 353,
+    "y": 88
+  },
+  "stock": {
+    "x": 508,
+    "y": 76
+  }
+}

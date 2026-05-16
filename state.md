@@ -416,3 +416,51 @@
 - Ran `npm test`; all 4 test files passed with 25 tests.
 - Ran `npm run build`; the production build passed and emitted the updated Bill sprite sheet asset, with the existing non-blocking Phaser chunk-size warning remaining.
 - Current product state: Bill's frame-origin alignment is corrected at the asset level and verified.
+
+## 05/16/2026 10:02
+
+- Lowered Bill's walking animation frame rate from `10` to `6` in `docs/art/players/bill/bill-spritesheet.json` so the `7-13` walking sequence has more visible dwell time per frame.
+- Added constants test coverage asserting Bill's walking animation uses frames `7-13`, repeats, and plays at `6` fps.
+- Ran `npm test`; all 6 test files passed with 29 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: Bill's walking animation timing has been slowed for easier visual inspection and verified.
+
+## 05/16/2026 10:07
+
+- Created the approved sniper weapon art folder at `docs/art/weapons/sniper`.
+- Generated a 16-bit style sniper rifle from the reference images under `docs/art/reference/weapons/sniper`, preserving the long wooden stock, silver barrel, black scope, box magazine, and left-facing side-view silhouette.
+- Saved the game-ready transparent PNG at `docs/art/weapons/sniper/sniper.png`.
+- Added `docs/art/weapons/sniper/sniper.json` with the image dimensions, default facing, and initial muzzle/grip/stock anchor points for later runtime integration.
+- Verified the PNG reports as `512 x 128` RGBA and confirmed a corner pixel has alpha `0`.
+- Current product state: the sniper weapon art asset exists, but no runtime weapon integration has been added yet.
+
+## 05/16/2026 10:26
+
+- Implemented the approved pistol rendering pass from `docs/hld/entities/weapons/pistol.md` and `docs/hld/systems/rendering.md`.
+- Added pistol weapon art constants that use the temporary sniper sprite metadata from `docs/art/weapons/sniper/sniper.json`.
+- Added `src/game/weaponPosition.ts` to calculate weapon grip placement, facing, flip state, rotation, and muzzle world position from player and target coordinates.
+- Added `src/game/entities/WeaponSprite.ts` to preload and render the active pistol weapon on top of the player at arm height using `docs/art/weapons/sniper/sniper.png`.
+- Updated `AlphaLevelScene` so the pistol weapon follows the player and active pointer, and player bullets now spawn from the rendered weapon muzzle instead of the player center.
+- Exposed the player's current horizontal facing direction through `Player.getFacingDirection()`.
+- Added tests for pistol weapon metadata and left/right muzzle placement.
+- Ran `npm test`; all 7 test files passed with 35 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Completed rendering requirements: active weapon renders over the player and bullets start from the gun muzzle.
+
+## 05/16/2026 10:11
+
+- Added support for explicit animation frame lists in `src/game/animationFrames.ts` so spritesheet metadata can override inclusive `startFrame`/`endFrame` playback when needed.
+- Updated Bill's walking animation metadata to play frames `[7, 9, 10, 11, 12, 13]`, skipping frame `8` because it is visually too close to frame `7` at runtime scale.
+- Updated animation and constants tests to cover Bill's skipped walking frame and the explicit-frame-list behavior.
+- Ran `npm test`; all 6 test files passed with 31 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: Bill's walking animation now avoids the weakest early duplicate-looking pose and is verified.
+
+## 05/16/2026 10:22
+
+- Reworked only Bill's walking row in `docs/art/players/bill/bill-spritesheet.png` by preserving the existing upper-body pixels and exaggerating the lower-body stride/foot placement for frames `7-13`.
+- Restored Bill's walking metadata to use the full inclusive `7-13` frame range now that frame `8` has been made more readable at runtime scale.
+- Added player spritesheet test coverage requiring Bill's walking lower-body silhouettes to stay broad enough for the current `64x96` runtime display size.
+- Ran `npm test`; all 7 test files passed with 36 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: Bill's walking row has an asset-level readability pass applied and verified.

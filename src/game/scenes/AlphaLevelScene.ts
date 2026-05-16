@@ -7,6 +7,7 @@ import { EnemyProjectile } from "../entities/EnemyProjectile";
 import { Pistol } from "../entities/Pistol";
 import { Player } from "../entities/Player";
 import { SpitterInfected } from "../entities/SpitterInfected";
+import { WeaponSprite } from "../entities/WeaponSprite";
 import { resolveVelocityVector } from "../trajectory";
 import {
   ALPHA_LEVEL,
@@ -60,6 +61,7 @@ export class AlphaLevelScene extends Phaser.Scene {
   private readonly bullets: Bullet[] = [];
   private readonly enemyProjectiles: EnemyProjectile[] = [];
   private pistol = new Pistol();
+  private pistolWeapon?: WeaponSprite;
   private lastDamageTimeMs = -PLAYER_MOVEMENT.damageCooldownMs;
   private shotsFired = 0;
   private enemiesKilled = 0;
@@ -72,6 +74,7 @@ export class AlphaLevelScene extends Phaser.Scene {
   public preload(): void {
     Player.preloadAssets(this);
     SpitterInfected.preloadAssets(this);
+    WeaponSprite.preloadAssets(this);
   }
 
   public create(data: AlphaLevelStartData = {}): void {
@@ -140,6 +143,11 @@ export class AlphaLevelScene extends Phaser.Scene {
       playerStartY,
       this.currentSurvivor
     );
+    this.pistolWeapon = new WeaponSprite(
+      this,
+      this.player,
+      this.getPointerWorldPosition()
+    );
 
     this.physics.add.collider(this.player, this.floor);
     this.physics.add.overlap(this.player, this.safeZone, () => {
@@ -173,7 +181,7 @@ export class AlphaLevelScene extends Phaser.Scene {
       })
       .setScrollFactor(0);
 
-    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+    this.input.on("pointerdown", () => {
       if (this.gameplayState !== GAMEPLAY_STATES.alive || !this.player) {
         return;
       }
@@ -184,7 +192,8 @@ export class AlphaLevelScene extends Phaser.Scene {
       }
 
       this.shotsFired += 1;
-      this.fireBullet(pointer.worldX, pointer.worldY);
+      const target = this.getPointerWorldPosition();
+      this.fireBullet(target.x, target.y);
       this.stateText?.setText(this.getHudText());
     });
 
@@ -220,6 +229,10 @@ export class AlphaLevelScene extends Phaser.Scene {
     }
 
     this.player.update();
+    this.pistolWeapon?.updateForPlayer(
+      this.player,
+      this.getPointerWorldPosition()
+    );
     for (const enemy of this.enemies) {
       enemy.update();
 
@@ -298,30 +311,26 @@ export class AlphaLevelScene extends Phaser.Scene {
   }
 
   private fireBullet(targetX: number, targetY: number): void {
-    if (!this.player) {
+    if (!this.player || !this.pistolWeapon) {
       return;
     }
 
+    const muzzle = this.pistolWeapon.updateForPlayer(this.player, {
+      x: targetX,
+      y: targetY
+    });
     const velocity = resolveVelocityVector(
-      this.player.x,
-      this.player.y,
+      muzzle.x,
+      muzzle.y,
       targetX,
       targetY,
       PISTOL_CARD.velocity
     );
-    const magnitude = Math.hypot(velocity.x, velocity.y);
-    const spawnOffset =
-      magnitude === 0
-        ? { x: 20, y: 0 }
-        : {
-            x: (velocity.x / magnitude) * 20,
-            y: (velocity.y / magnitude) * 20
-          };
 
     const bullet = new Bullet(
       this,
-      this.player.x + spawnOffset.x,
-      this.player.y + spawnOffset.y,
+      muzzle.x,
+      muzzle.y,
       velocity
     );
     this.bullets.push(bullet);
@@ -400,6 +409,16 @@ export class AlphaLevelScene extends Phaser.Scene {
       pointer.x,
       pointer.y + CROSSHAIR.size + 4
     );
+  }
+
+  private getPointerWorldPosition(): { x: number; y: number } {
+    const pointer = this.input.activePointer;
+    const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+
+    return {
+      x: worldPoint.x,
+      y: worldPoint.y
+    };
   }
 
   private handleSafeZoneReached(): void {

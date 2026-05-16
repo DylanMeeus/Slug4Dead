@@ -2,7 +2,9 @@ import alpha1Level from "./levels/alpha/alpha_1.json";
 import alpha2Level from "./levels/alpha/alpha_2.json";
 import billSpritesheet from "../../docs/art/players/bill/bill-spritesheet.json";
 import spitterSpritesheet from "../../docs/art/enemies/spitter/spitter-spritesheet.json";
+import sniperWeaponSprite from "../../docs/art/weapons/sniper/sniper.json";
 import zoeySpritesheet from "../../docs/art/players/zoey/zoey-spritesheet.json";
+import type { WeaponSpriteMetadata } from "./weaponPosition";
 
 export const GAME_TITLE = "Slug4Dead";
 
@@ -104,6 +106,21 @@ export const PISTOL_CARD = {
   fireRatePerSecond: 10,
   damage: 2,
   velocity: 500
+} as const;
+
+export const PISTOL_WEAPON_SPRITE: WeaponSpriteMetadata & { image: string } = {
+  ...sniperWeaponSprite,
+  defaultFacing: sniperWeaponSprite.defaultFacing as HorizontalFacingDirection
+};
+
+export const PISTOL_WEAPON_DISPLAY_SIZE = {
+  width: 96,
+  height: 24
+} as const;
+
+export const PISTOL_WEAPON_ARM_OFFSET = {
+  x: 15,
+  y: -8
 } as const;
 
 export const CROSSHAIR = {

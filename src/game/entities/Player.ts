@@ -31,6 +31,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private readonly idleAnimationKey?: string;
   private readonly walkingAnimationKey?: string;
   private readonly defaultFacingDirection?: HorizontalFacingDirection;
+  private facingDirection: HorizontalFacingDirection = "right";
   private readonly movementKeys: {
     left: Phaser.Input.Keyboard.Key;
     right: Phaser.Input.Keyboard.Key;
@@ -138,6 +139,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.healthPoints;
   }
 
+  public getFacingDirection(): HorizontalFacingDirection {
+    return this.facingDirection;
+  }
+
   public getAnimationDebugText(): string {
     const currentAnimationKey = this.anims.currentAnim?.key ?? "none";
     const currentFrame = this.anims.currentFrame;
@@ -161,6 +166,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private faceDirection(direction: HorizontalFacingDirection): void {
+    this.facingDirection = direction;
+
     if (!this.defaultFacingDirection) {
       this.setFlipX(direction === "left");
       return;

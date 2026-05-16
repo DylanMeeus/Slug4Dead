@@ -96,14 +96,16 @@ function getFrameAlphaBounds(
   png: DecodedPng,
   frame: number,
   frameWidth: number,
-  frameHeight: number
+  frameHeight: number,
+  yStart = 0,
+  yEnd = frameHeight
 ): { minX: number; maxX: number } {
   const column = frame % 7;
   const row = Math.floor(frame / 7);
   let minX = frameWidth;
   let maxX = -1;
 
-  for (let y = 0; y < frameHeight; y += 1) {
+  for (let y = yStart; y < yEnd; y += 1) {
     for (let x = 0; x < frameWidth; x += 1) {
       const alphaOffset =
         ((row * frameHeight + y) * png.width + column * frameWidth + x) * 4 + 3;
@@ -141,6 +143,27 @@ describe("player spritesheets", () => {
       expect(bounds.maxX).toBeLessThanOrEqual(215);
       expect(center).toBeGreaterThanOrEqual(127);
       expect(center).toBeLessThanOrEqual(129);
+    }
+  });
+
+  it("keeps Bill walking lower-body silhouettes broad enough to read", () => {
+    const frameWidth = 256;
+    const frameHeight = 384;
+    const billSpritesheet = decodeRgbaPng(
+      "docs/art/players/bill/bill-spritesheet.png"
+    );
+
+    for (const frame of [7, 8, 9, 10, 11, 12]) {
+      const bounds = getFrameAlphaBounds(
+        billSpritesheet,
+        frame,
+        frameWidth,
+        frameHeight,
+        320
+      );
+      const lowerBodyWidth = bounds.maxX - bounds.minX + 1;
+
+      expect(lowerBodyWidth).toBeGreaterThanOrEqual(170);
     }
   });
 });

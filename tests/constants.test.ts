@@ -15,6 +15,9 @@ import {
   LEVEL_WIDTH,
   normalizeLevelDefinition,
   PISTOL_CARD,
+  PISTOL_WEAPON_ARM_OFFSET,
+  PISTOL_WEAPON_DISPLAY_SIZE,
+  PISTOL_WEAPON_SPRITE,
   PLAYER_CARD,
   PLAYER_DISPLAY_SIZE,
   PLAYER_MOVEMENT,
@@ -78,6 +81,12 @@ describe("game constants", () => {
     expect(PLAYER_SPRITESHEETS.Bill.animations.idle).toMatchObject({
       startFrame: 0,
       endFrame: 6,
+      repeat: -1
+    });
+    expect(PLAYER_SPRITESHEETS.Bill.animations.walking).toMatchObject({
+      startFrame: 7,
+      endFrame: 13,
+      frameRate: 6,
       repeat: -1
     });
     expect(PLAYER_SPRITESHEETS.Zoey.animations.walking).toMatchObject({
@@ -213,6 +222,20 @@ describe("game constants", () => {
       damage: 2,
       velocity: 500
     });
+  });
+
+  it("defines the temporary pistol weapon sprite from the sniper art", () => {
+    expect(PISTOL_WEAPON_SPRITE).toMatchObject({
+      image: "sniper.png",
+      width: 512,
+      height: 128,
+      defaultFacing: "left"
+    });
+    expect(PISTOL_WEAPON_SPRITE.muzzle.x).toBeLessThan(
+      PISTOL_WEAPON_SPRITE.grip.x
+    );
+    expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 96, height: 24 });
+    expect(PISTOL_WEAPON_ARM_OFFSET).toEqual({ x: 15, y: -8 });
   });
 
   it("defines crosshair rendering constants", () => {

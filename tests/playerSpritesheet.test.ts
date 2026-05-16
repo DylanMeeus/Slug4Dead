@@ -146,14 +146,14 @@ describe("player spritesheets", () => {
     }
   });
 
-  it("keeps Bill walking lower-body silhouettes broad enough to read", () => {
+  it("keeps Bill active walking feet clear of horizontal frame clipping", () => {
     const frameWidth = 256;
     const frameHeight = 384;
     const billSpritesheet = decodeRgbaPng(
       "docs/art/players/bill/bill-spritesheet.png"
     );
 
-    for (const frame of [7, 8, 9, 10, 11, 12]) {
+    for (const frame of [7, 9, 10, 11, 12, 13]) {
       const bounds = getFrameAlphaBounds(
         billSpritesheet,
         frame,
@@ -161,9 +161,9 @@ describe("player spritesheets", () => {
         frameHeight,
         320
       );
-      const lowerBodyWidth = bounds.maxX - bounds.minX + 1;
 
-      expect(lowerBodyWidth).toBeGreaterThanOrEqual(170);
+      expect(bounds.minX).toBeGreaterThanOrEqual(45);
+      expect(bounds.maxX).toBeLessThanOrEqual(210);
     }
   });
 });

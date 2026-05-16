@@ -38,7 +38,7 @@ export function resolveWeaponRenderTransform(
     target.x < player.x ? "left" : "right";
   const flipX = facing !== metadata.defaultFacing;
   const gripWorld = {
-    x: player.x + (facing === "right" ? armOffset.x : -armOffset.x),
+    x: player.x + armOffset.x,
     y: player.y + armOffset.y
   };
   const muzzleOffset = resolveAnchorOffset(

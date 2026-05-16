@@ -114,13 +114,13 @@ export const PISTOL_WEAPON_SPRITE: WeaponSpriteMetadata & { image: string } = {
 };
 
 export const PISTOL_WEAPON_DISPLAY_SIZE = {
-  width: 96,
-  height: 24
+  width: 72,
+  height: 18
 } as const;
 
 export const PISTOL_WEAPON_ARM_OFFSET = {
   x: 15,
-  y: -8
+  y: 8
 } as const;
 
 export const CROSSHAIR = {

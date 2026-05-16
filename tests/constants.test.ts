@@ -86,6 +86,7 @@ describe("game constants", () => {
     expect(PLAYER_SPRITESHEETS.Bill.animations.walking).toMatchObject({
       startFrame: 7,
       endFrame: 13,
+      frames: [7, 9, 10, 11, 12, 13],
       frameRate: 6,
       repeat: -1
     });
@@ -234,8 +235,8 @@ describe("game constants", () => {
     expect(PISTOL_WEAPON_SPRITE.muzzle.x).toBeLessThan(
       PISTOL_WEAPON_SPRITE.grip.x
     );
-    expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 96, height: 24 });
-    expect(PISTOL_WEAPON_ARM_OFFSET).toEqual({ x: 15, y: -8 });
+    expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 72, height: 18 });
+    expect(PISTOL_WEAPON_ARM_OFFSET).toEqual({ x: 15, y: 8 });
   });
 
   it("defines crosshair rendering constants", () => {

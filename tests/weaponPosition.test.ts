@@ -19,8 +19,8 @@ describe("weapon positioning", () => {
 
     expect(transform.facing).toBe("left");
     expect(transform.flipX).toBe(false);
-    expect(transform.x).toBe(85);
-    expect(transform.y).toBe(192);
+    expect(transform.x).toBe(115);
+    expect(transform.y).toBe(208);
     expect(transform.muzzle.x).toBeLessThan(transform.x);
   });
 
@@ -36,8 +36,29 @@ describe("weapon positioning", () => {
     expect(transform.facing).toBe("right");
     expect(transform.flipX).toBe(true);
     expect(transform.x).toBe(115);
-    expect(transform.y).toBe(192);
+    expect(transform.y).toBe(208);
     expect(transform.muzzle.x).toBeGreaterThan(transform.x);
+  });
+
+  it("keeps the pistol grip position stable across aim direction changes", () => {
+    const player = { x: 100, y: 200 };
+    const leftAim = resolveWeaponRenderTransform(
+      player,
+      { x: 0, y: 200 },
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE,
+      PISTOL_WEAPON_ARM_OFFSET
+    );
+    const rightAim = resolveWeaponRenderTransform(
+      player,
+      { x: 300, y: 200 },
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE,
+      PISTOL_WEAPON_ARM_OFFSET
+    );
+
+    expect(leftAim.x).toBe(rightAim.x);
+    expect(leftAim.y).toBe(rightAim.y);
   });
 
   it("rotates the muzzle toward the target point", () => {

@@ -447,6 +447,34 @@
 - Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
 - Completed rendering requirements: active weapon renders over the player and bullets start from the gun muzzle.
 
+## 05/16/2026 10:32
+
+- Fixed the reported pistol/sniper weapon rotation issue while Bill walks with the mouse stationary.
+- Updated `AlphaLevelScene.getPointerWorldPosition()` to recalculate the pointer's world position from the active camera and current screen-space pointer coordinates each frame instead of relying on potentially stale `pointer.worldX/worldY`.
+- Updated pointer firing to use the same camera-derived target position as weapon rendering so aim and bullet direction stay aligned while the camera follows the player.
+- Ran `npm test`; all 7 test files passed with 36 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: the active weapon should no longer rotate due to stale cursor world coordinates when the player walks under a stationary mouse.
+
+## 05/16/2026 10:35
+
+- Resized the temporary pistol/sniper weapon overlay about 25% smaller by changing `PISTOL_WEAPON_DISPLAY_SIZE` from `96x24` to `72x18`.
+- Moved the weapon anchor lower on the player by changing `PISTOL_WEAPON_ARM_OFFSET.y` from `-8` to `8`, so the rifle should sit nearer the middle of Bill's sprite instead of floating above him.
+- Updated weapon positioning and constants tests for the new display size and anchor offset.
+- Ran `npm test`; all 7 test files passed with 36 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: the active weapon renders smaller and lower on the player while preserving muzzle-based bullet spawning.
+
+## 05/16/2026 10:38
+
+- Fixed the reported weapon base-position jump when aiming across the player.
+- Updated `resolveWeaponRenderTransform()` so the weapon grip/base always uses the configured player arm anchor instead of mirroring the anchor to the opposite side based on aim direction.
+- Kept weapon facing, flip state, rotation, and muzzle-based bullet spawning intact.
+- Added a weapon positioning test that verifies the pistol grip position remains stable when switching between left and right aim targets.
+- Ran `npm test`; all 7 test files passed with 37 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: aiming across Bill should rotate/flip the weapon without switching its base position.
+
 ## 05/16/2026 10:11
 
 - Added support for explicit animation frame lists in `src/game/animationFrames.ts` so spritesheet metadata can override inclusive `startFrame`/`endFrame` playback when needed.
@@ -464,3 +492,11 @@
 - Ran `npm test`; all 7 test files passed with 36 tests.
 - Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
 - Current product state: Bill's walking row has an asset-level readability pass applied and verified.
+
+## 05/16/2026 10:41
+
+- Corrected Bill's walking row after the prior stride exaggeration made a foot look clipped by the frame boundary.
+- Contracted the walking lower-body pixels back inside the frame cells so active walking feet stay clear of the horizontal crop edges.
+- Restored Bill's explicit walking playback list to `[7, 9, 10, 11, 12, 13]` because frame `8` still reads too similar to frame `7` at the current runtime size.
+- Replaced the previous broad-lower-body asset assertion with a clipping-focused test for Bill's active walking frames.
+- Current product state: Bill's active walking animation avoids frame `8` and has a foot-safe asset correction applied; verification is pending.

@@ -16,6 +16,7 @@
       "row": 1,
       "startFrame": 7,
       "endFrame": 13,
+      "frames": [7, 9, 10, 11, 12, 13],
       "frameRate": 6,
       "repeat": -1
     }

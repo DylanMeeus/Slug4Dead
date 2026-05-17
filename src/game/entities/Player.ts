@@ -28,6 +28,7 @@ const PLAYER_SPRITESHEET_URLS: Record<SpritesheetSurvivorName, string> = {
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   private healthPoints: number = PLAYER_CARD.health;
+  private readonly survivorName: SurvivorName;
   private readonly idleAnimationKey?: string;
   private readonly walkingAnimationKey?: string;
   private readonly defaultFacingDirection?: HorizontalFacingDirection;
@@ -64,6 +65,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     Player.ensurePlaceholderTexture(scene);
     const textureKey = Player.getTextureKey(survivorName);
     super(scene, x, y, textureKey);
+    this.survivorName = survivorName;
 
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -141,6 +143,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
   public getFacingDirection(): HorizontalFacingDirection {
     return this.facingDirection;
+  }
+
+  public getSurvivorName(): SurvivorName {
+    return this.survivorName;
   }
 
   public getAnimationDebugText(): string {

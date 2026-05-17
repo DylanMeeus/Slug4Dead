@@ -118,29 +118,112 @@ export const PISTOL_WEAPON_DISPLAY_SIZE = {
   height: 24
 } as const;
 
-export const PISTOL_WEAPON_ARM_OFFSET = {
-  x: 14,
-  y: 8
-} as const;
+export type WeaponArmRig = {
+  armOffset: {
+    x: number;
+    y: number;
+  };
+  rearHand: {
+    x: number;
+    y: number;
+  };
+  frontHand: {
+    x: number;
+    y: number;
+  };
+  rearShoulderOffset: {
+    x: number;
+    y: number;
+  };
+  frontShoulderOffset: {
+    x: number;
+    y: number;
+  };
+  sleeveThickness: number;
+  handRadius: number;
+  sleeveColor: number;
+  handColor: number;
+};
 
-export const PISTOL_WEAPON_ARM_RIG = {
+const BASE_PISTOL_WEAPON_ARM_RIG = {
   rearHand: PISTOL_WEAPON_SPRITE.grip,
   frontHand: {
-    x: 260,
-    y: 86
-  },
-  rearShoulderOffset: {
-    x: 12,
-    y: 1
-  },
-  frontShoulderOffset: {
-    x: -2,
-    y: 3
+    x: 278,
+    y: 84
   },
   sleeveThickness: 6,
-  handRadius: 4,
-  sleeveColor: 0x51623a,
-  handColor: 0xc88a5a
+  handRadius: 4
+} as const;
+
+export const PISTOL_WEAPON_ARM_RIGS: Record<SurvivorName, WeaponArmRig> = {
+  Bill: {
+    ...BASE_PISTOL_WEAPON_ARM_RIG,
+    armOffset: {
+      x: 8,
+      y: 6
+    },
+    rearShoulderOffset: {
+      x: 9,
+      y: 1
+    },
+    frontShoulderOffset: {
+      x: -1,
+      y: 3
+    },
+    sleeveColor: 0x51623a,
+    handColor: 0xc88a5a
+  },
+  Louis: {
+    ...BASE_PISTOL_WEAPON_ARM_RIG,
+    armOffset: {
+      x: 8,
+      y: 6
+    },
+    rearShoulderOffset: {
+      x: 9,
+      y: 1
+    },
+    frontShoulderOffset: {
+      x: -1,
+      y: 3
+    },
+    sleeveColor: 0x51623a,
+    handColor: 0xc88a5a
+  },
+  Francis: {
+    ...BASE_PISTOL_WEAPON_ARM_RIG,
+    armOffset: {
+      x: 8,
+      y: 6
+    },
+    rearShoulderOffset: {
+      x: 9,
+      y: 1
+    },
+    frontShoulderOffset: {
+      x: -1,
+      y: 3
+    },
+    sleeveColor: 0x51623a,
+    handColor: 0xc88a5a
+  },
+  Zoey: {
+    ...BASE_PISTOL_WEAPON_ARM_RIG,
+    armOffset: {
+      x: 6,
+      y: 5
+    },
+    rearShoulderOffset: {
+      x: 7,
+      y: 1
+    },
+    frontShoulderOffset: {
+      x: -2,
+      y: 2
+    },
+    sleeveColor: 0x8b2f31,
+    handColor: 0xe2b596
+  }
 } as const;
 
 export const CROSSHAIR = {

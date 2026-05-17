@@ -2,10 +2,10 @@ import Phaser from "phaser";
 
 import sniperUrl from "../../../docs/art/weapons/sniper/sniper.png";
 import {
-  PISTOL_WEAPON_ARM_OFFSET,
-  PISTOL_WEAPON_ARM_RIG,
+  PISTOL_WEAPON_ARM_RIGS,
   PISTOL_WEAPON_DISPLAY_SIZE,
-  PISTOL_WEAPON_SPRITE
+  PISTOL_WEAPON_SPRITE,
+  type WeaponArmRig
 } from "../constants";
 import type { Player } from "./Player";
 import {
@@ -18,6 +18,7 @@ import {
 const PISTOL_WEAPON_TEXTURE_KEY = "weapon-pistol-sniper";
 
 export class WeaponSprite extends Phaser.GameObjects.Image {
+  private readonly armRig: WeaponArmRig;
   private readonly rearSleeve: Phaser.GameObjects.Rectangle;
   private readonly frontSleeve: Phaser.GameObjects.Rectangle;
   private readonly rearHand: Phaser.GameObjects.Arc;
@@ -33,25 +34,26 @@ export class WeaponSprite extends Phaser.GameObjects.Image {
 
   public constructor(scene: Phaser.Scene, player: Player, target: Point) {
     super(scene, player.x, player.y, PISTOL_WEAPON_TEXTURE_KEY);
+    this.armRig = PISTOL_WEAPON_ARM_RIGS[player.getSurvivorName()];
 
     scene.add.existing(this);
     this.rearSleeve = scene.add
-      .rectangle(0, 0, 1, 1, PISTOL_WEAPON_ARM_RIG.sleeveColor)
+      .rectangle(0, 0, 1, 1, this.armRig.sleeveColor)
       .setOrigin(0, 0.5);
     this.frontSleeve = scene.add
-      .rectangle(0, 0, 1, 1, PISTOL_WEAPON_ARM_RIG.sleeveColor)
+      .rectangle(0, 0, 1, 1, this.armRig.sleeveColor)
       .setOrigin(0, 0.5);
     this.rearHand = scene.add.circle(
       0,
       0,
-      PISTOL_WEAPON_ARM_RIG.handRadius,
-      PISTOL_WEAPON_ARM_RIG.handColor
+      this.armRig.handRadius,
+      this.armRig.handColor
     );
     this.frontHand = scene.add.circle(
       0,
       0,
-      PISTOL_WEAPON_ARM_RIG.handRadius,
-      PISTOL_WEAPON_ARM_RIG.handColor
+      this.armRig.handRadius,
+      this.armRig.handColor
     );
 
     this.setOrigin(
@@ -72,27 +74,27 @@ export class WeaponSprite extends Phaser.GameObjects.Image {
       target,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      this.armRig.armOffset
     );
     const rearShoulder = resolveShoulderPoint(
       player,
       transform.facing,
-      PISTOL_WEAPON_ARM_RIG.rearShoulderOffset
+      this.armRig.rearShoulderOffset
     );
     const frontShoulder = resolveShoulderPoint(
       player,
       transform.facing,
-      PISTOL_WEAPON_ARM_RIG.frontShoulderOffset
+      this.armRig.frontShoulderOffset
     );
     const rearHand = resolveWeaponAnchorWorldPoint(
       transform,
-      PISTOL_WEAPON_ARM_RIG.rearHand,
+      this.armRig.rearHand,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE
     );
     const frontHand = resolveWeaponAnchorWorldPoint(
       transform,
-      PISTOL_WEAPON_ARM_RIG.frontHand,
+      this.armRig.frontHand,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE
     );
@@ -130,7 +132,7 @@ export class WeaponSprite extends Phaser.GameObjects.Image {
 
     sleeve
       .setPosition(segment.x, segment.y)
-      .setDisplaySize(segment.length, PISTOL_WEAPON_ARM_RIG.sleeveThickness)
+      .setDisplaySize(segment.length, this.armRig.sleeveThickness)
       .setRotation(segment.rotation);
   }
 }

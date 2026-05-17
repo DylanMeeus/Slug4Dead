@@ -15,8 +15,7 @@ import {
   LEVEL_WIDTH,
   normalizeLevelDefinition,
   PISTOL_CARD,
-  PISTOL_WEAPON_ARM_OFFSET,
-  PISTOL_WEAPON_ARM_RIG,
+  PISTOL_WEAPON_ARM_RIGS,
   PISTOL_WEAPON_DISPLAY_SIZE,
   PISTOL_WEAPON_SPRITE,
   PLAYER_CARD,
@@ -87,8 +86,8 @@ describe("game constants", () => {
     expect(PLAYER_SPRITESHEETS.Bill.animations.walking).toMatchObject({
       startFrame: 7,
       endFrame: 13,
-      frames: [7, 9, 10, 11, 12, 13],
-      frameRate: 6,
+      frames: [7, 8, 9, 10, 11, 12, 13],
+      frameRate: 10,
       repeat: -1
     });
     expect(PLAYER_SPRITESHEETS.Zoey.animations.walking).toMatchObject({
@@ -227,6 +226,9 @@ describe("game constants", () => {
   });
 
   it("defines the temporary pistol weapon from the sniper art", () => {
+    const billArmRig = PISTOL_WEAPON_ARM_RIGS.Bill;
+    const zoeyArmRig = PISTOL_WEAPON_ARM_RIGS.Zoey;
+
     expect(PISTOL_WEAPON_SPRITE).toMatchObject({
       image: "sniper.png",
       width: 512,
@@ -237,20 +239,22 @@ describe("game constants", () => {
       PISTOL_WEAPON_SPRITE.grip.x
     );
     expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 96, height: 24 });
-    expect(Number.isFinite(PISTOL_WEAPON_ARM_OFFSET.x)).toBe(true);
-    expect(Number.isFinite(PISTOL_WEAPON_ARM_OFFSET.y)).toBe(true);
-    expect(Math.abs(PISTOL_WEAPON_ARM_OFFSET.x)).toBeLessThanOrEqual(
+    expect(Number.isFinite(billArmRig.armOffset.x)).toBe(true);
+    expect(Number.isFinite(billArmRig.armOffset.y)).toBe(true);
+    expect(Math.abs(billArmRig.armOffset.x)).toBeLessThanOrEqual(
       PLAYER_DISPLAY_SIZE.width / 2
     );
-    expect(Math.abs(PISTOL_WEAPON_ARM_OFFSET.y)).toBeLessThanOrEqual(
+    expect(Math.abs(billArmRig.armOffset.y)).toBeLessThanOrEqual(
       PLAYER_DISPLAY_SIZE.height / 2
     );
-    expect(PISTOL_WEAPON_ARM_RIG.rearHand).toEqual(PISTOL_WEAPON_SPRITE.grip);
-    expect(PISTOL_WEAPON_ARM_RIG.frontHand.x).toBeLessThan(
-      PISTOL_WEAPON_ARM_RIG.rearHand.x
-    );
-    expect(PISTOL_WEAPON_ARM_RIG.sleeveThickness).toBeGreaterThan(0);
-    expect(PISTOL_WEAPON_ARM_RIG.handRadius).toBeGreaterThan(0);
+    expect(billArmRig.rearHand).toEqual(PISTOL_WEAPON_SPRITE.grip);
+    expect(billArmRig.frontHand.x).toBeLessThan(billArmRig.rearHand.x);
+    expect(billArmRig.sleeveThickness).toBeGreaterThan(0);
+    expect(billArmRig.handRadius).toBeGreaterThan(0);
+
+    expect(zoeyArmRig.sleeveColor).not.toBe(billArmRig.sleeveColor);
+    expect(zoeyArmRig.handColor).not.toBe(billArmRig.handColor);
+    expect(zoeyArmRig.armOffset.x).toBeLessThan(billArmRig.armOffset.x);
   });
 
   it("defines crosshair rendering constants", () => {

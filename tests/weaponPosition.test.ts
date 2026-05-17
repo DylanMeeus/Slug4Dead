@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  PISTOL_WEAPON_ARM_OFFSET,
-  PISTOL_WEAPON_ARM_RIG,
+  PISTOL_WEAPON_ARM_RIGS,
   PISTOL_WEAPON_DISPLAY_SIZE,
   PISTOL_WEAPON_SPRITE,
   PLAYER_DISPLAY_SIZE
@@ -14,13 +13,15 @@ import {
 } from "../src/game/weaponPosition";
 
 describe("weapon positioning", () => {
+  const billArmRig = PISTOL_WEAPON_ARM_RIGS.Bill;
+
   it("places the left-facing pistol muzzle left of the player arm", () => {
     const transform = resolveWeaponRenderTransform(
       { x: 100, y: 200 },
       { x: 0, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
 
     expect(transform.facing).toBe("left");
@@ -38,7 +39,7 @@ describe("weapon positioning", () => {
       { x: 300, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
 
     expect(transform.facing).toBe("right");
@@ -57,14 +58,14 @@ describe("weapon positioning", () => {
       { x: 0, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
     const rightAim = resolveWeaponRenderTransform(
       player,
       { x: 300, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
 
     expect(leftAim.x).toBe(rightAim.x);
@@ -78,7 +79,7 @@ describe("weapon positioning", () => {
       target,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
     const gripToTargetAngle = Math.atan2(
       target.y - transform.y,
@@ -99,24 +100,24 @@ describe("weapon positioning", () => {
       { x: 0, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
     const rightAim = resolveWeaponRenderTransform(
       player,
       { x: 300, y: 200 },
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE,
-      PISTOL_WEAPON_ARM_OFFSET
+      billArmRig.armOffset
     );
     const leftFrontHand = resolveWeaponAnchorWorldPoint(
       leftAim,
-      PISTOL_WEAPON_ARM_RIG.frontHand,
+      billArmRig.frontHand,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE
     );
     const rightFrontHand = resolveWeaponAnchorWorldPoint(
       rightAim,
-      PISTOL_WEAPON_ARM_RIG.frontHand,
+      billArmRig.frontHand,
       PISTOL_WEAPON_SPRITE,
       PISTOL_WEAPON_DISPLAY_SIZE
     );

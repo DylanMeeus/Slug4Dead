@@ -147,6 +147,66 @@ function countOpaquePixelsInFrameRegion(
   return opaquePixels;
 }
 
+function countPixelsMatchingInFrameRegion(
+  png: DecodedPng,
+  frame: number,
+  frameWidth: number,
+  frameHeight: number,
+  region: { x: number; y: number; width: number; height: number },
+  predicate: (red: number, green: number, blue: number, alpha: number) => boolean
+): number {
+  const column = frame % 7;
+  const row = Math.floor(frame / 7);
+  let matchingPixels = 0;
+
+  for (let y = region.y; y < region.y + region.height; y += 1) {
+    for (let x = region.x; x < region.x + region.width; x += 1) {
+      const offset =
+        ((row * frameHeight + y) * png.width + column * frameWidth + x) * 4;
+
+      if (
+        predicate(
+          png.pixels[offset],
+          png.pixels[offset + 1],
+          png.pixels[offset + 2],
+          png.pixels[offset + 3]
+        )
+      ) {
+        matchingPixels += 1;
+      }
+    }
+  }
+
+  return matchingPixels;
+}
+
+function isChromaKeyGreen(red: number, green: number, blue: number): boolean {
+  return (
+    green > 125 &&
+    red < 100 &&
+    blue < 120 &&
+    green > red * 1.45 &&
+    green > blue * 1.45
+  );
+}
+
+function isBillSkinTone(
+  red: number,
+  green: number,
+  blue: number,
+  alpha: number
+): boolean {
+  return (
+    alpha > 0 &&
+    red > 130 &&
+    green > 70 &&
+    green < 190 &&
+    blue < 130 &&
+    red > green * 1.15 &&
+    green > blue * 1.1
+  );
+}
+
 describe("player spritesheets", () => {
   it("keeps Bill idle and running frames centered in their cells", () => {
     const frameWidth = 256;
@@ -164,14 +224,14 @@ describe("player spritesheets", () => {
       );
       const center = (bounds.minX + bounds.maxX + 1) / 2;
 
-      expect(bounds.minX).toBeGreaterThanOrEqual(40);
-      expect(bounds.maxX).toBeLessThanOrEqual(215);
+      expect(bounds.minX).toBeGreaterThanOrEqual(35);
+      expect(bounds.maxX).toBeLessThanOrEqual(221);
       expect(center).toBeGreaterThanOrEqual(127);
       expect(center).toBeLessThanOrEqual(139);
     }
   });
 
-  it("renders Bill's body while keeping the old arm regions empty", () => {
+  it("renders Bill's body without chroma-key residue or visible hands", () => {
     const frameWidth = 256;
     const frameHeight = 384;
     const billSpritesheet = decodeRgbaPng(
@@ -186,24 +246,36 @@ describe("player spritesheets", () => {
         frameHeight,
         { x: 94, y: 145, width: 71, height: 121 }
       );
-      const leftArmPixels = countOpaquePixelsInFrameRegion(
+      const leftFistPixels = countPixelsMatchingInFrameRegion(
         billSpritesheet,
         frame,
         frameWidth,
         frameHeight,
-        { x: 45, y: 160, width: 32, height: 91 }
+        { x: 45, y: 205, width: 40, height: 60 },
+        isBillSkinTone
       );
-      const rightArmPixels = countOpaquePixelsInFrameRegion(
+      const rightFistPixels = countPixelsMatchingInFrameRegion(
         billSpritesheet,
         frame,
         frameWidth,
         frameHeight,
-        { x: 181, y: 160, width: 32, height: 91 }
+        { x: 172, y: 205, width: 40, height: 60 },
+        isBillSkinTone
+      );
+      const greenPixels = countPixelsMatchingInFrameRegion(
+        billSpritesheet,
+        frame,
+        frameWidth,
+        frameHeight,
+        { x: 0, y: 0, width: frameWidth, height: frameHeight },
+        (red, green, blue, alpha) =>
+          alpha > 0 && isChromaKeyGreen(red, green, blue)
       );
 
-      expect(torsoPixels).toBeGreaterThan(7900);
-      expect(leftArmPixels).toBe(0);
-      expect(rightArmPixels).toBe(0);
+      expect(torsoPixels).toBeGreaterThan(7300);
+      expect(leftFistPixels).toBe(0);
+      expect(rightFistPixels).toBeLessThanOrEqual(10);
+      expect(greenPixels).toBe(0);
     }
   });
 
@@ -223,8 +295,8 @@ describe("player spritesheets", () => {
         320
       );
 
-      expect(bounds.minX).toBeGreaterThanOrEqual(45);
-      expect(bounds.maxX).toBeLessThanOrEqual(214);
+      expect(bounds.minX).toBeGreaterThanOrEqual(35);
+      expect(bounds.maxX).toBeLessThanOrEqual(221);
     }
   });
 

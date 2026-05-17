@@ -1,5 +1,26 @@
 ## State Log
 
+### 05/17/2026 18:03
+- Addressed user-reported weapon-arm rendering regressions: Zoey was inheriting Bill-style procedural arm colors and both survivors' arms appeared too far in front of the torso.
+- Replaced the single global arm rig with survivor-specific rig data in runtime constants (`Bill`, `Zoey`, plus fallback entries for `Louis`/`Francis`) including per-survivor sleeve/skin colors, torso offsets, and shoulder/hand anchor tuning.
+- Added `Player.getSurvivorName()` so weapon rendering can resolve the active survivor rig at runtime.
+- Updated `WeaponSprite` to consume survivor-specific rig configuration for colors, arm offsets, shoulder anchors, hand anchors, and sleeve thickness.
+- Tuned the shared weapon-hand anchor closer to the rifle grip and reduced arm offsets so weapon/arms sit closer to the torso and no longer float as far out front.
+- Updated focused tests to validate the new rig structure and survivor differentiation.
+- Ran `npm test -- tests/weaponPosition.test.ts`; all 6 tests passed.
+- Ran `npm test -- tests/constants.test.ts -t "temporary pistol weapon"`; focused constants assertion passed.
+- Ran `npm run build`; production build passed with the existing non-blocking bundle-size warning.
+- Current product state: Bill and Zoey now use distinct procedural arm styling, and weapon/arm placement is pulled closer to the torso.
+
+### 05/17/2026 17:54
+- Replaced the unacceptable procedural Bill spritesheet with a new AI-generated, Zoey-quality 16-bit Bill sheet based on Bill reference images and the Zoey spritesheet style target.
+- Converted the generated chroma-key source into the exact Phaser spritesheet asset at `docs/art/players/bill/bill-spritesheet.png`: 7 columns x 2 rows, 256x384 frames, transparent background, right-facing Bill, idle row, full seven-frame running row, and no visible hands/weapons.
+- Updated `docs/art/players/bill/bill-spritesheet.json` so Bill's row 1 animation uses all seven running frames at `frameRate: 10`, while retaining the existing `walking` runtime key for compatibility.
+- Updated sprite regression tests to verify Bill frame bounds, body presence, no chroma-key residue, and no visible skin-tone hand pixels in the old fist areas.
+- Ran `npm test`; all 7 test files passed for 41 tests.
+- Ran `npm run build`; the production build completed successfully with the existing non-blocking bundle-size warning.
+- Current product state: Bill now has a polished arm-free idle/running body spritesheet that visually tracks much closer to Zoey's quality bar.
+
 ### 05/17/2026 17:44
 - Reworked the approved Bill weapon rendering fix after the user confirmed the offset-only correction still looked bad.
 - Switched runtime weapon rendering from the combined `bill-sniper-arms.png` overlay to the standalone `docs/art/weapons/sniper/sniper.png` metadata and image.

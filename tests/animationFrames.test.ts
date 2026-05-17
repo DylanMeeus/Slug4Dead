@@ -32,10 +32,10 @@ describe("animation frame sequences", () => {
     ).toEqual([7, 9, 10, 11, 12, 13]);
   });
 
-  it("skips Bill's duplicate-looking second walking frame", () => {
+  it("uses every recreated Bill running frame through the walking runtime key", () => {
     expect(
       buildInclusiveFrameSequence(PLAYER_SPRITESHEETS.Bill.animations.walking)
-    ).toEqual([7, 9, 10, 11, 12, 13]);
+    ).toEqual([7, 8, 9, 10, 11, 12, 13]);
   });
 
   it("uses every generated walking frame for Zoey", () => {

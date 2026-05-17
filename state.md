@@ -1,5 +1,81 @@
 ## State Log
 
+### 05/17/2026 17:44
+- Reworked the approved Bill weapon rendering fix after the user confirmed the offset-only correction still looked bad.
+- Switched runtime weapon rendering from the combined `bill-sniper-arms.png` overlay to the standalone `docs/art/weapons/sniper/sniper.png` metadata and image.
+- Added a retained Bill arm rig: two sleeve rectangles and two hand circles are created once with the weapon sprite and only have transforms updated each frame, avoiding per-frame texture or pixel work.
+- Added weapon-position helpers for resolving arbitrary weapon anchors and retained arm segment transforms, with focused tests covering muzzle direction, hand-anchor side, and segment transform math.
+- Ran `npm test -- tests/weaponPosition.test.ts`; all 6 focused weapon-position tests passed.
+- Ran `npm test -- tests/constants.test.ts -t "temporary pistol weapon"`; the focused weapon constants assertion passed.
+- Ran `npm run build`; the production build passed with the existing non-blocking bundle-size warning.
+- Confirmed `tests/constants.test.ts` still has the separately recorded Bill walking metadata failure from the 17:36 spritesheet work.
+- Current product state: Bill's weapon should render as a clean rifle with lightweight procedural arms pinned from the torso to the rifle grips.
+
+### 05/17/2026 17:36
+- Attempted to recreate `docs/art/players/bill/bill-spritesheet.png` from scratch as a 7x2 arm-free 16-bit body sheet with idle and running rows.
+- Updated Bill spritesheet metadata and related sprite tests to account for all seven running frames, but the result did not meet the visual quality bar when compared against Zoey's spritesheet.
+- User feedback: Zoey's sheet has the desired polish and Bill's recreated sheet looks unacceptable; future Bill work should use Zoey's sprite quality, proportions, shading density, and animation feel as the target instead of the procedural placeholder style used in this attempt.
+- Verification state: `npm run build` passed with the existing bundle-size warning; `npm test` currently has one failing constants expectation because the temporary Bill walking metadata changed from the previous skipped-frame sequence to all seven frames.
+- Current product state: Bill's spritesheet needs to be replaced again before it should be considered usable.
+
+### 05/17/2026 17:34
+- Cleaned up the Bill weapon overlay test after the user questioned unit-testing exact visual tuning coordinates.
+- Loosened the constants coverage so it only verifies the arm anchor is a finite point within the player display bounds instead of requiring the exact `{ x: 14, y: 8 }` art offset.
+- Current product state: weapon transform behavior remains test-covered, while exact Bill arm placement stays adjustable as visual tuning.
+
+### 05/17/2026 17:32
+- Started the approved Bill arms/weapon attachment fix after the user reported the overlay floating above/behind him.
+- Lowered the runtime pistol/arms overlay anchor from `y: -8` to `y: 8` so the grip pivot pins to Bill's torso line instead of the upper shoulder/neck line.
+- Updated weapon positioning and constants tests to cover the corrected overlay anchor.
+- Current product state: Bill's generated arms+weapon overlay should render lower and remain attached to the torso while preserving the stable horizontal grip anchor.
+
+### 05/17/2026 17:22
+- Repaired the Bill body spritesheet after the previous arm-removal pass left blocky torso/hip artifacts.
+- Repainted every Bill idle and walking frame with a complete arm-free body: head/neck, green military jacket, lapels, undershirt, pockets, belt, trouser top, and existing animated legs remain visible while the old arm lanes stay transparent for the weapon overlay.
+- Added asset regression coverage to `tests/playerSpritesheet.test.ts` to verify Bill's torso remains populated and the old arm regions are empty in every frame.
+- Ran `npm test`; all 7 test files passed for 39 tests.
+- Ran `npm run build`; the production build completed successfully with the existing non-blocking bundle-size warning.
+- Current product state: Bill's base spritesheet is a usable body-only layer for idle and walking animations, with arms reserved for the rotatable weapon overlay.
+
+### 05/17/2026 17:11
+- Updated Bill's art pipeline for rotatable aiming after user approval.
+- Reworked `docs/art/players/bill/bill-spritesheet.png` as an arm-free body layer and documented that layering in `bill-spritesheet.json`.
+- Added `docs/art/players/bill/bill-sniper-arms.png` plus metadata for Bill's character-specific arms/sniper overlay, and removed the chroma-key background from the shared sniper sprite.
+- Wired the runtime weapon sprite to use Bill's arms+sniper overlay with a shoulder-style pivot and added asset metadata/transparency test coverage.
+- Ran `npm test`; all 7 test files passed for 38 tests.
+- Ran `npm run build`; the production build completed successfully with the existing non-blocking bundle-size warning.
+- Current product state: Bill can be rendered as a body layer with a separately rotating arms+weapon layer for mouse aiming.
+
+### 05/17/2026 16:58
+- Integrated Slug4Dead with the sibling VibeSite deployment flow after user approval, without modifying any files under `docs/`.
+- Updated VibeSite to sync Slug4Dead as a static Vite build under `/games/slug4dead/`, including a deploy hook, Docker public asset copy support, and a homepage navigation link.
+- Current product state: Slug4Dead remains a standalone Vite/Phaser game, and VibeSite is being prepared to serve its production build as nested static assets.
+
+### 05/17/2026 17:00
+- Ran the new VibeSite sync script, which built Slug4Dead with Vite base `/games/slug4dead/` and copied the resulting static files into `../VibeSite/website-frontend/public/games/slug4dead/`.
+- Ran `npm test`; all 7 Slug4Dead test files passed for 37 tests.
+- Current product state: the generated Slug4Dead `dist/` output and the synced VibeSite public game assets both use the intended nested deployment path.
+
+### 05/17/2026 17:02
+- Fixed the VibeSite backend static handler so nested directory URLs like `/games/slug4dead/` serve that directory's `index.html` before falling back to the React SPA root.
+- Added a VibeSite backend regression test for `/games/slug4dead/` serving the game index instead of the blog app.
+- Current product state: the clean deployed game URL is expected to be `/games/slug4dead/`.
+
+### 05/17/2026 17:04
+- Verified the VibeSite routing fix with `go test ./...` in `../VibeSite/website-backend` and `bash tests/deploy.test.sh` in `../VibeSite`; both passed.
+- Smoke-tested the VibeSite backend locally on `127.0.0.1:18081` with `WEBSITE_STATIC_DIR` pointed at the synced public assets and confirmed `/games/slug4dead/` returns Slug4Dead's HTML instead of the blog app.
+- Current product state: the clean game URL has backend test coverage and a local HTTP smoke-test confirmation.
+
+### 05/17/2026 17:07
+- Updated VibeSite's Vite dev/preview configuration so local `/games/slug4dead/` requests serve the synced Slug4Dead `index.html` instead of falling through to the React SPA fallback.
+- Added deploy/layout regression checks for the Vite middleware.
+- Current product state: both production Go static serving and local Vite dev serving are intended to support the clean `/games/slug4dead/` game URL.
+
+### 05/17/2026 17:08
+- Verified the VibeSite Vite middleware with `npm test`, `bash tests/deploy.test.sh`, and `npm run build -- --outDir /tmp/vibesite-dist-slug4dead`.
+- Smoke-tested a temporary Vite dev server on `127.0.0.1:5174` and confirmed `/games/slug4dead/` returns Slug4Dead's HTML directly.
+- Current product state: local development and production serving both support `/games/slug4dead/`; the Vite startup still reports the known root-owned `node_modules/.vite` cache permission warning, but the dev server served the game path correctly.
+
 ### 05/05/2026 19:23
 - Read `docs/hld/main.md` and confirmed the initial browser technology decisions: TypeScript, Phaser 3, and Vite.
 - Read `docs/hld/systems/loop.md`; it currently only contains the gameplay loop title and no additional implementation detail.
@@ -499,4 +575,6 @@
 - Contracted the walking lower-body pixels back inside the frame cells so active walking feet stay clear of the horizontal crop edges.
 - Restored Bill's explicit walking playback list to `[7, 9, 10, 11, 12, 13]` because frame `8` still reads too similar to frame `7` at the current runtime size.
 - Replaced the previous broad-lower-body asset assertion with a clipping-focused test for Bill's active walking frames.
-- Current product state: Bill's active walking animation avoids frame `8` and has a foot-safe asset correction applied; verification is pending.
+- Ran `npm test`; all 7 test files passed with 37 tests.
+- Ran `npm run build`; the production build passed with the existing non-blocking Phaser chunk-size warning.
+- Current product state: Bill's active walking animation avoids frame `8` and has a foot-safe asset correction applied and verified.

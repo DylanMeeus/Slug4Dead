@@ -2,7 +2,7 @@ import alpha1Level from "./levels/alpha/alpha_1.json";
 import alpha2Level from "./levels/alpha/alpha_2.json";
 import billSpritesheet from "../../docs/art/players/bill/bill-spritesheet.json";
 import spitterSpritesheet from "../../docs/art/enemies/spitter/spitter-spritesheet.json";
-import sniperWeaponSprite from "../../docs/art/weapons/sniper/sniper.json";
+import sniperSprite from "../../docs/art/weapons/sniper/sniper.json";
 import zoeySpritesheet from "../../docs/art/players/zoey/zoey-spritesheet.json";
 import type { WeaponSpriteMetadata } from "./weaponPosition";
 
@@ -109,18 +109,38 @@ export const PISTOL_CARD = {
 } as const;
 
 export const PISTOL_WEAPON_SPRITE: WeaponSpriteMetadata & { image: string } = {
-  ...sniperWeaponSprite,
-  defaultFacing: sniperWeaponSprite.defaultFacing as HorizontalFacingDirection
+  ...sniperSprite,
+  defaultFacing: sniperSprite.defaultFacing as HorizontalFacingDirection
 };
 
 export const PISTOL_WEAPON_DISPLAY_SIZE = {
-  width: 72,
-  height: 18
+  width: 96,
+  height: 24
 } as const;
 
 export const PISTOL_WEAPON_ARM_OFFSET = {
-  x: 15,
+  x: 14,
   y: 8
+} as const;
+
+export const PISTOL_WEAPON_ARM_RIG = {
+  rearHand: PISTOL_WEAPON_SPRITE.grip,
+  frontHand: {
+    x: 260,
+    y: 86
+  },
+  rearShoulderOffset: {
+    x: 12,
+    y: 1
+  },
+  frontShoulderOffset: {
+    x: -2,
+    y: 3
+  },
+  sleeveThickness: 6,
+  handRadius: 4,
+  sleeveColor: 0x51623a,
+  handColor: 0xc88a5a
 } as const;
 
 export const CROSSHAIR = {

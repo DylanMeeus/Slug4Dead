@@ -1,0 +1,23 @@
+{
+  "image": "bill-sniper-arms.png",
+  "width": 512,
+  "height": 128,
+  "defaultFacing": "left",
+  "muzzle": {
+    "x": 3,
+    "y": 45
+  },
+  "grip": {
+    "x": 406,
+    "y": 96
+  },
+  "stock": {
+    "x": 508,
+    "y": 76
+  },
+  "notes": [
+    "Character-specific overlay for Bill holding the sniper rifle.",
+    "The grip point is used as the shoulder/rotation pivot for aiming.",
+    "Designed to render above Bill's arm-free body spritesheet."
+  ]
+}

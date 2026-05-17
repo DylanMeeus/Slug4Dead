@@ -2,10 +2,16 @@ import { describe, expect, it } from "vitest";
 
 import {
   PISTOL_WEAPON_ARM_OFFSET,
+  PISTOL_WEAPON_ARM_RIG,
   PISTOL_WEAPON_DISPLAY_SIZE,
-  PISTOL_WEAPON_SPRITE
+  PISTOL_WEAPON_SPRITE,
+  PLAYER_DISPLAY_SIZE
 } from "../src/game/constants";
-import { resolveWeaponRenderTransform } from "../src/game/weaponPosition";
+import {
+  resolveSegmentTransform,
+  resolveWeaponAnchorWorldPoint,
+  resolveWeaponRenderTransform
+} from "../src/game/weaponPosition";
 
 describe("weapon positioning", () => {
   it("places the left-facing pistol muzzle left of the player arm", () => {
@@ -19,8 +25,10 @@ describe("weapon positioning", () => {
 
     expect(transform.facing).toBe("left");
     expect(transform.flipX).toBe(false);
-    expect(transform.x).toBe(115);
-    expect(transform.y).toBe(208);
+    expect(transform.x).toBeGreaterThan(100 - PLAYER_DISPLAY_SIZE.width / 2);
+    expect(transform.x).toBeLessThan(100 + PLAYER_DISPLAY_SIZE.width / 2);
+    expect(transform.y).toBeGreaterThan(200 - PLAYER_DISPLAY_SIZE.height / 2);
+    expect(transform.y).toBeLessThan(200 + PLAYER_DISPLAY_SIZE.height / 2);
     expect(transform.muzzle.x).toBeLessThan(transform.x);
   });
 
@@ -35,8 +43,10 @@ describe("weapon positioning", () => {
 
     expect(transform.facing).toBe("right");
     expect(transform.flipX).toBe(true);
-    expect(transform.x).toBe(115);
-    expect(transform.y).toBe(208);
+    expect(transform.x).toBeGreaterThan(100 - PLAYER_DISPLAY_SIZE.width / 2);
+    expect(transform.x).toBeLessThan(100 + PLAYER_DISPLAY_SIZE.width / 2);
+    expect(transform.y).toBeGreaterThan(200 - PLAYER_DISPLAY_SIZE.height / 2);
+    expect(transform.y).toBeLessThan(200 + PLAYER_DISPLAY_SIZE.height / 2);
     expect(transform.muzzle.x).toBeGreaterThan(transform.x);
   });
 
@@ -80,5 +90,49 @@ describe("weapon positioning", () => {
     );
 
     expect(gripToMuzzleAngle).toBeCloseTo(gripToTargetAngle, 5);
+  });
+
+  it("places weapon hand anchors on the aimed side of the grip", () => {
+    const player = { x: 100, y: 200 };
+    const leftAim = resolveWeaponRenderTransform(
+      player,
+      { x: 0, y: 200 },
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE,
+      PISTOL_WEAPON_ARM_OFFSET
+    );
+    const rightAim = resolveWeaponRenderTransform(
+      player,
+      { x: 300, y: 200 },
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE,
+      PISTOL_WEAPON_ARM_OFFSET
+    );
+    const leftFrontHand = resolveWeaponAnchorWorldPoint(
+      leftAim,
+      PISTOL_WEAPON_ARM_RIG.frontHand,
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE
+    );
+    const rightFrontHand = resolveWeaponAnchorWorldPoint(
+      rightAim,
+      PISTOL_WEAPON_ARM_RIG.frontHand,
+      PISTOL_WEAPON_SPRITE,
+      PISTOL_WEAPON_DISPLAY_SIZE
+    );
+
+    expect(leftFrontHand.x).toBeLessThan(leftAim.x);
+    expect(rightFrontHand.x).toBeGreaterThan(rightAim.x);
+  });
+
+  it("resolves retained arm segment transforms between two points", () => {
+    const segment = resolveSegmentTransform({ x: 0, y: 0 }, { x: 3, y: 4 });
+
+    expect(segment).toMatchObject({
+      x: 0,
+      y: 0,
+      length: 5
+    });
+    expect(segment.rotation).toBeCloseTo(Math.atan2(4, 3), 5);
   });
 });

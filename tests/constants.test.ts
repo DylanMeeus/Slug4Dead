@@ -16,6 +16,7 @@ import {
   normalizeLevelDefinition,
   PISTOL_CARD,
   PISTOL_WEAPON_ARM_OFFSET,
+  PISTOL_WEAPON_ARM_RIG,
   PISTOL_WEAPON_DISPLAY_SIZE,
   PISTOL_WEAPON_SPRITE,
   PLAYER_CARD,
@@ -225,7 +226,7 @@ describe("game constants", () => {
     });
   });
 
-  it("defines the temporary pistol weapon sprite from the sniper art", () => {
+  it("defines the temporary pistol weapon from the sniper art", () => {
     expect(PISTOL_WEAPON_SPRITE).toMatchObject({
       image: "sniper.png",
       width: 512,
@@ -235,8 +236,21 @@ describe("game constants", () => {
     expect(PISTOL_WEAPON_SPRITE.muzzle.x).toBeLessThan(
       PISTOL_WEAPON_SPRITE.grip.x
     );
-    expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 72, height: 18 });
-    expect(PISTOL_WEAPON_ARM_OFFSET).toEqual({ x: 15, y: 8 });
+    expect(PISTOL_WEAPON_DISPLAY_SIZE).toEqual({ width: 96, height: 24 });
+    expect(Number.isFinite(PISTOL_WEAPON_ARM_OFFSET.x)).toBe(true);
+    expect(Number.isFinite(PISTOL_WEAPON_ARM_OFFSET.y)).toBe(true);
+    expect(Math.abs(PISTOL_WEAPON_ARM_OFFSET.x)).toBeLessThanOrEqual(
+      PLAYER_DISPLAY_SIZE.width / 2
+    );
+    expect(Math.abs(PISTOL_WEAPON_ARM_OFFSET.y)).toBeLessThanOrEqual(
+      PLAYER_DISPLAY_SIZE.height / 2
+    );
+    expect(PISTOL_WEAPON_ARM_RIG.rearHand).toEqual(PISTOL_WEAPON_SPRITE.grip);
+    expect(PISTOL_WEAPON_ARM_RIG.frontHand.x).toBeLessThan(
+      PISTOL_WEAPON_ARM_RIG.rearHand.x
+    );
+    expect(PISTOL_WEAPON_ARM_RIG.sleeveThickness).toBeGreaterThan(0);
+    expect(PISTOL_WEAPON_ARM_RIG.handRadius).toBeGreaterThan(0);
   });
 
   it("defines crosshair rendering constants", () => {

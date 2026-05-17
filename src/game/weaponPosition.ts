@@ -27,6 +27,13 @@ export type WeaponRenderTransform = {
   muzzle: Point;
 };
 
+export type SegmentTransform = {
+  x: number;
+  y: number;
+  length: number;
+  rotation: number;
+};
+
 export function resolveWeaponRenderTransform(
   player: Point,
   target: Point,
@@ -63,6 +70,42 @@ export function resolveWeaponRenderTransform(
       x: gripWorld.x + rotatedMuzzleOffset.x,
       y: gripWorld.y + rotatedMuzzleOffset.y
     }
+  };
+}
+
+export function resolveWeaponAnchorWorldPoint(
+  transform: Pick<WeaponRenderTransform, "x" | "y" | "rotation" | "flipX">,
+  anchor: Point,
+  metadata: WeaponSpriteMetadata,
+  displaySize: WeaponDisplaySize
+): Point {
+  const anchorOffset = resolveAnchorOffset(
+    anchor,
+    metadata.grip,
+    metadata,
+    displaySize,
+    transform.flipX
+  );
+  const rotatedAnchorOffset = rotatePoint(anchorOffset, transform.rotation);
+
+  return {
+    x: transform.x + rotatedAnchorOffset.x,
+    y: transform.y + rotatedAnchorOffset.y
+  };
+}
+
+export function resolveSegmentTransform(
+  start: Point,
+  end: Point
+): SegmentTransform {
+  const deltaX = end.x - start.x;
+  const deltaY = end.y - start.y;
+
+  return {
+    x: start.x,
+    y: start.y,
+    length: Math.hypot(deltaX, deltaY),
+    rotation: Math.atan2(deltaY, deltaX)
   };
 }
 

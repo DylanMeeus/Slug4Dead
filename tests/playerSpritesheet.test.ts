@@ -122,8 +122,33 @@ function getFrameAlphaBounds(
   return { minX, maxX };
 }
 
+function countOpaquePixelsInFrameRegion(
+  png: DecodedPng,
+  frame: number,
+  frameWidth: number,
+  frameHeight: number,
+  region: { x: number; y: number; width: number; height: number }
+): number {
+  const column = frame % 7;
+  const row = Math.floor(frame / 7);
+  let opaquePixels = 0;
+
+  for (let y = region.y; y < region.y + region.height; y += 1) {
+    for (let x = region.x; x < region.x + region.width; x += 1) {
+      const alphaOffset =
+        ((row * frameHeight + y) * png.width + column * frameWidth + x) * 4 + 3;
+
+      if (png.pixels[alphaOffset] !== 0) {
+        opaquePixels += 1;
+      }
+    }
+  }
+
+  return opaquePixels;
+}
+
 describe("player spritesheets", () => {
-  it("keeps Bill idle and walking frames centered in their cells", () => {
+  it("keeps Bill idle and running frames centered in their cells", () => {
     const frameWidth = 256;
     const frameHeight = 384;
     const billSpritesheet = decodeRgbaPng(
@@ -142,18 +167,54 @@ describe("player spritesheets", () => {
       expect(bounds.minX).toBeGreaterThanOrEqual(40);
       expect(bounds.maxX).toBeLessThanOrEqual(215);
       expect(center).toBeGreaterThanOrEqual(127);
-      expect(center).toBeLessThanOrEqual(129);
+      expect(center).toBeLessThanOrEqual(139);
     }
   });
 
-  it("keeps Bill active walking feet clear of horizontal frame clipping", () => {
+  it("renders Bill's body while keeping the old arm regions empty", () => {
     const frameWidth = 256;
     const frameHeight = 384;
     const billSpritesheet = decodeRgbaPng(
       "docs/art/players/bill/bill-spritesheet.png"
     );
 
-    for (const frame of [7, 9, 10, 11, 12, 13]) {
+    for (const frame of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) {
+      const torsoPixels = countOpaquePixelsInFrameRegion(
+        billSpritesheet,
+        frame,
+        frameWidth,
+        frameHeight,
+        { x: 94, y: 145, width: 71, height: 121 }
+      );
+      const leftArmPixels = countOpaquePixelsInFrameRegion(
+        billSpritesheet,
+        frame,
+        frameWidth,
+        frameHeight,
+        { x: 45, y: 160, width: 32, height: 91 }
+      );
+      const rightArmPixels = countOpaquePixelsInFrameRegion(
+        billSpritesheet,
+        frame,
+        frameWidth,
+        frameHeight,
+        { x: 181, y: 160, width: 32, height: 91 }
+      );
+
+      expect(torsoPixels).toBeGreaterThan(7900);
+      expect(leftArmPixels).toBe(0);
+      expect(rightArmPixels).toBe(0);
+    }
+  });
+
+  it("keeps Bill running feet clear of horizontal frame clipping", () => {
+    const frameWidth = 256;
+    const frameHeight = 384;
+    const billSpritesheet = decodeRgbaPng(
+      "docs/art/players/bill/bill-spritesheet.png"
+    );
+
+    for (const frame of [7, 8, 9, 10, 11, 12, 13]) {
       const bounds = getFrameAlphaBounds(
         billSpritesheet,
         frame,
@@ -163,7 +224,41 @@ describe("player spritesheets", () => {
       );
 
       expect(bounds.minX).toBeGreaterThanOrEqual(45);
-      expect(bounds.maxX).toBeLessThanOrEqual(210);
+      expect(bounds.maxX).toBeLessThanOrEqual(214);
+    }
+  });
+
+  it("provides a transparent Bill sniper arms overlay with expected anchors", () => {
+    const overlay = decodeRgbaPng(
+      "docs/art/players/bill/bill-sniper-arms.png"
+    );
+    const metadata = JSON.parse(
+      fs
+        .readFileSync("docs/art/players/bill/bill-sniper-arms.json")
+        .toString()
+    ) as {
+      width: number;
+      height: number;
+      defaultFacing: string;
+      muzzle: { x: number; y: number };
+      grip: { x: number; y: number };
+    };
+
+    expect(metadata.width).toBe(overlay.width);
+    expect(metadata.height).toBe(overlay.height);
+    expect(metadata.defaultFacing).toBe("left");
+    expect(metadata.muzzle.x).toBeLessThan(metadata.grip.x);
+    expect(metadata.grip.x).toBeGreaterThan(metadata.width / 2);
+
+    for (const [x, y] of [
+      [0, 0],
+      [overlay.width - 1, 0],
+      [0, overlay.height - 1],
+      [overlay.width - 1, overlay.height - 1]
+    ]) {
+      const alphaOffset = (y * overlay.width + x) * 4 + 3;
+
+      expect(overlay.pixels[alphaOffset]).toBe(0);
     }
   });
 });

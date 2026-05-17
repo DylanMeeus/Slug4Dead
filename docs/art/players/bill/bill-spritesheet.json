@@ -16,7 +16,15 @@
       "row": 1,
       "startFrame": 7,
       "endFrame": 13,
-      "frames": [7, 9, 10, 11, 12, 13],
+      "frames": [7, 8, 9, 10, 11, 12, 13],
+      "frameRate": 8,
+      "repeat": -1
+    },
+    "running": {
+      "row": 1,
+      "startFrame": 7,
+      "endFrame": 13,
+      "frames": [7, 8, 9, 10, 11, 12, 13],
       "frameRate": 6,
       "repeat": -1
     }
@@ -24,7 +32,9 @@
   "notes": [
     "Sprite faces right.",
     "The sheet uses a fixed 7x2 grid for Phaser spritesheet loading.",
-    "Row 0 contains idle frames; row 1 contains walking frames.",
-    "Generated from Bill reference images under docs/art/reference/players/bill."
+    "Row 0 contains idle frames; row 1 contains a running cycle.",
+    "The walking animation key is retained for runtime compatibility and uses the same row 1 running frames.",
+    "Bill's base body is intentionally arm-free so weapon-specific arms can rotate independently.",
+    "Recreated from scratch in a 16-bit action-game style using Bill reference images under docs/art/reference/players/bill."
   ]
 }
